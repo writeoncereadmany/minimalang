@@ -3,6 +3,8 @@ package com.writeoncereadmany.minstrel;
 import com.writeoncereadmany.minstrel.ast.Program;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  * Created by tomj on 27/07/2017.
  */
@@ -17,11 +19,11 @@ public class HelloWorldTest {
 
     @Test
     public void failsToParseBareWords() {
-        Program program = compiler.compile("Hello World");
+        assertThrows(ParseException.class, () -> compiler.compile("Hello World"));
     }
 
     @Test
     public void failsToParseUnknownSymbols() {
-        Program program = compiler.compile("!£#@<do24");
+        assertThrows(LexException.class, () -> compiler.compile("!£#@<do24"));
     }
 }
