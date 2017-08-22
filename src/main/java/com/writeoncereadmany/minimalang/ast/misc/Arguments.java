@@ -1,7 +1,6 @@
-package com.writeoncereadmany.minstrel.ast.misc;
+package com.writeoncereadmany.minimalang.ast.misc;
 
-import com.writeoncereadmany.minstrel.ast.expressions.Expression;
-import com.writeoncereadmany.minstrel.generated.MinstrelParser;
+import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 
 import java.util.List;
 

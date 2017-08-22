@@ -1,7 +1,7 @@
-package com.writeoncereadmany.minstrel.ast;
+package com.writeoncereadmany.minimalang.ast;
 
 
-import com.writeoncereadmany.minstrel.ast.expressions.Expression;
+import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 
 public class Program {
 

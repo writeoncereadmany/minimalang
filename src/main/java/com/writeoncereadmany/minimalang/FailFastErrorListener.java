@@ -1,4 +1,4 @@
-package com.writeoncereadmany.minstrel;
+package com.writeoncereadmany.minimalang;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.Parser;

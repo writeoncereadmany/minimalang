@@ -1,6 +1,6 @@
-package com.writeoncereadmany.minstrel;
+package com.writeoncereadmany.minimalang;
 
-import com.writeoncereadmany.minstrel.ast.Program;
+import com.writeoncereadmany.minimalang.ast.Program;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

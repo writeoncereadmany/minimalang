@@ -6,7 +6,7 @@
 
 
     <groupId>com.writeoncereadmany</groupId>
-    <artifactId>minstrel</artifactId>
+    <artifactId>minimalang</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

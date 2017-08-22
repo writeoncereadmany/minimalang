@@ -1,4 +1,4 @@
-package com.writeoncereadmany.minstrel;
+package com.writeoncereadmany.minimalang;
 
 public class ParseException extends RuntimeException {
 

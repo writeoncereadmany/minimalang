@@ -1,4 +1,4 @@
-grammar Minstrel;
+grammar Minimalang;
 
 // LEXING
 

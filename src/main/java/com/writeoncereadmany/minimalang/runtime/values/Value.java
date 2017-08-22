@@ -1,4 +1,4 @@
-package com.writeoncereadmany.minstrel.runtime.values;
+package com.writeoncereadmany.minimalang.runtime.values;
 
 /**
  * Created by tomj on 22/08/2017.

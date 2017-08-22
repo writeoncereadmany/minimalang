@@ -1,6 +1,6 @@
-package com.writeoncereadmany.minstrel.ast.expressions;
+package com.writeoncereadmany.minimalang.ast.expressions;
 
-import com.writeoncereadmany.minstrel.ast.misc.Arguments;
+import com.writeoncereadmany.minimalang.ast.misc.Arguments;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
