@@ -2,6 +2,7 @@ package com.writeoncereadmany.minimalang.ast.expressions;
 
 import com.writeoncereadmany.minimalang.ast.misc.Arguments;
 
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -51,7 +52,10 @@ public abstract class Expression {
 
         @Override
         public <T> T fold(Catamorphism<T> cata) {
-            return cata.onCall.apply(function.fold(cata), arguments);
+            return cata.onCall.apply(
+                    function.fold(cata),
+                    arguments.fold(cata)
+            );
         }
     }
 
@@ -88,11 +92,11 @@ public abstract class Expression {
      *************************************/
 
     public static class Catamorphism<T> {
-        public final BiFunction<T, Arguments, T> onCall;
+        public final BiFunction<T, List<T>, T> onCall;
         public final Function<String, T> onStringLiteral;
         public final Function<String, T> onVariable;
 
-        public Catamorphism(BiFunction<T, Arguments, T> onCall, Function<String, T> onStringLiteral, Function<String, T> onVariable) {
+        public Catamorphism(BiFunction<T, List<T>, T> onCall, Function<String, T> onStringLiteral, Function<String, T> onVariable) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
             this.onVariable = onVariable;
