@@ -43,14 +43,30 @@ public class HelloWorldTest {
         Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
 
         Program program = compiler.compile(String.join("\n",
-                "print[\"Seven syllables begin\"]",
+                "print[\"Seven syllables to start\"]",
                 "print[\"Then another five\"]",
                 "print[\"And seven more to finish\"]"));
 
         Value endResult = program.run(evaluator(), environment);
 
         assertThat(endResult, is(SUCCESS));
-        assertThat(printed, hasItems("Seven syllables begin", "Then another five", "And seven more to finish"));
+        assertThat(printed, hasItems("Seven syllables to start", "Then another five", "And seven more to finish"));
+    }
+
+    @Test
+    public void canStoreThingsInVariables() {
+        List<String> printed = new ArrayList<String>();
+
+        Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
+
+        Program program = compiler.compile(String.join("\n",
+                "message is \"Hello, World!\"",
+                "print[message]"));
+
+        Value endResult = program.run(evaluator(), environment);
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("Hello, World!"));
     }
 
     @Test

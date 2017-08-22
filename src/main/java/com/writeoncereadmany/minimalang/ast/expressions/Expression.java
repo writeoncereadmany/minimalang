@@ -33,8 +33,12 @@ public abstract class Expression {
         return new Variable(name);
     }
 
-    public static Expression sequence(List<Expression> expressions) {
-        return new Sequence(expressions);
+    public static Expression sequence(Expression first, Expression second) {
+        return new Sequence(first, second);
+    }
+
+    public static Expression declaration(String name, Expression expression) {
+        return new Declaration(name, expression);
     }
 
     public abstract <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context);
@@ -95,16 +99,35 @@ public abstract class Expression {
     }
 
     private static class Sequence extends Expression {
-        private final List<Expression> expressions;
+        private final Expression first;
+        private final Expression second;
 
-        public Sequence(List<Expression> expressions) {
-            this.expressions = expressions;
+        public Sequence(Expression first, Expression second) {
+            this.first = first;
+            this.second = second;
         }
-
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return cata.onSequence.apply(expressions.stream().map(e -> e.fold(cata, context)).map(Pair::left).collect(toList()), context);
+            Pair<T, C> afterFirst = first.fold(cata, context);
+            Pair<T, C> afterSecond = second.fold(cata, afterFirst.right);
+            return cata.onSequence.apply(afterFirst.left, afterSecond.left, context);
+        }
+    }
+
+    private static class Declaration extends Expression {
+        private final String name;
+        private final Expression expression;
+
+        private Declaration(String name, Expression expression) {
+            this.name = name;
+            this.expression = expression;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            final T value = expression.fold(cata, context).left;
+            return cata.onDeclaration.apply(name, value, context);
         }
     }
 
@@ -118,18 +141,21 @@ public abstract class Expression {
         public final TriFunction<T, List<T>, C, Pair<T, C>> onCall;
         public final BiFunction<String, C, Pair<T, C>> onStringLiteral;
         public final BiFunction<String, C, Pair<T, C>> onVariable;
-        public final BiFunction<List<T>, C, Pair<T, C>> onSequence;
+        public final TriFunction<T, T, C, Pair<T, C>> onSequence;
+        public final TriFunction<String, T, C, Pair<T, C>> onDeclaration;
 
         public Catamorphism(
             TriFunction<T, List<T>, C, Pair<T, C>> onCall,
             BiFunction<String, C, Pair<T, C>> onStringLiteral,
             BiFunction<String, C, Pair<T, C>> onVariable,
-            BiFunction<List<T>, C, Pair<T, C>> onSequence
+            TriFunction<T, T, C, Pair<T, C>> onSequence,
+            TriFunction<String, T, C, Pair<T, C>> onDeclaration
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
             this.onVariable = onVariable;
             this.onSequence = onSequence;
+            this.onDeclaration = onDeclaration;
         }
     }
 }

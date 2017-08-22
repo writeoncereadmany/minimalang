@@ -16,10 +16,11 @@ WHITESPACE : [ \t\r] -> skip;
 program : expression EOF;
 
 expression
-  : STRING_LITERAL             # string
-  | IDENTIFIER                 # variable
-  | expression args            # call
-  | expression '\n' expression # sequence
+  : STRING_LITERAL                  # string
+  | IDENTIFIER 'is' expression      # declaration
+  | IDENTIFIER                      # variable
+  | expression args                 # call
+  | expression '\n' expression      # sequence
   ;
 
 args : '[' (expression (',' expression)*)? ']';

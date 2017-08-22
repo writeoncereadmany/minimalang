@@ -21,11 +21,8 @@ public interface ProgramBuilder {
                 ifType(MinimalangParser.CallContext.class, call -> call(buildExpression(call.expression()), buildArguments(call.args()))),
                 ifType(MinimalangParser.VariableContext.class, var -> variable(var.IDENTIFIER().getText())),
                 ifType(MinimalangParser.StringContext.class, str -> stringLiteral(stripSurroundingQuotes(str.STRING_LITERAL().getText()))),
-                ifType(MinimalangParser.SequenceContext.class, seq ->
-                    sequence(seq.expression()
-                            .stream()
-                            .map(ProgramBuilder::buildExpression)
-                            .collect(toList())))
+                ifType(MinimalangParser.SequenceContext.class, seq -> sequence(buildExpression(seq.expression(0)), buildExpression(seq.expression(1)))),
+                ifType(MinimalangParser.DeclarationContext.class, dec -> declaration(dec.IDENTIFIER().getText(), buildExpression(dec.expression())))
         ).otherwise(__ -> { throw new RuntimeException("Failed to find an implementation"); });
     }
 
