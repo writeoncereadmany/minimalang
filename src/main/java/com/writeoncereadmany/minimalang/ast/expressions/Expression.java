@@ -1,5 +1,7 @@
 package com.writeoncereadmany.minimalang.ast.expressions;
 
+import co.unruly.control.PartialApplication.TriFunction;
+import co.unruly.control.pair.Pair;
 import com.writeoncereadmany.minimalang.ast.misc.Arguments;
 
 import java.util.List;
@@ -35,7 +37,7 @@ public abstract class Expression {
         return new Sequence(expressions);
     }
 
-    public abstract <T> T fold(Catamorphism<T> cata);
+    public abstract <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context);
 
     public <T> T then(Function<Expression, T> function) {
         return function.apply(this);
@@ -57,10 +59,11 @@ public abstract class Expression {
         }
 
         @Override
-        public <T> T fold(Catamorphism<T> cata) {
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
             return cata.onCall.apply(
-                    function.fold(cata),
-                    arguments.fold(cata)
+                    function.fold(cata, context).left,
+                    arguments.fold(cata, context).stream().map(Pair::left).collect(toList()),
+                    context
             );
         }
     }
@@ -73,8 +76,8 @@ public abstract class Expression {
         }
 
         @Override
-        public <T> T fold(Catamorphism<T> cata) {
-            return cata.onStringLiteral.apply(text);
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onStringLiteral.apply(text, context);
         }
     }
 
@@ -86,8 +89,8 @@ public abstract class Expression {
         }
 
         @Override
-        public <T> T fold(Catamorphism<T> cata) {
-            return cata.onVariable.apply(name);
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onVariable.apply(name, context);
         }
     }
 
@@ -98,9 +101,10 @@ public abstract class Expression {
             this.expressions = expressions;
         }
 
+
         @Override
-        public <T> T fold(Catamorphism<T> cata) {
-            return cata.onSequence.apply(expressions.stream().map(e -> e.fold(cata)).collect(toList()));
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onSequence.apply(expressions.stream().map(e -> e.fold(cata, context)).map(Pair::left).collect(toList()), context);
         }
     }
 
@@ -110,17 +114,17 @@ public abstract class Expression {
      *
      *************************************/
 
-    public static class Catamorphism<T> {
-        public final BiFunction<T, List<T>, T> onCall;
-        public final Function<String, T> onStringLiteral;
-        public final Function<String, T> onVariable;
-        public final Function<List<T>, T> onSequence;
+    public static class Catamorphism<T, C> {
+        public final TriFunction<T, List<T>, C, Pair<T, C>> onCall;
+        public final BiFunction<String, C, Pair<T, C>> onStringLiteral;
+        public final BiFunction<String, C, Pair<T, C>> onVariable;
+        public final BiFunction<List<T>, C, Pair<T, C>> onSequence;
 
         public Catamorphism(
-            BiFunction<T, List<T>, T> onCall,
-            Function<String, T> onStringLiteral,
-            Function<String, T> onVariable,
-            Function<List<T>, T> onSequence
+            TriFunction<T, List<T>, C, Pair<T, C>> onCall,
+            BiFunction<String, C, Pair<T, C>> onStringLiteral,
+            BiFunction<String, C, Pair<T, C>> onVariable,
+            BiFunction<List<T>, C, Pair<T, C>> onSequence
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;

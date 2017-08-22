@@ -1,5 +1,6 @@
 package com.writeoncereadmany.minimalang.ast.misc;
 
+import co.unruly.control.pair.Pair;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 
 import java.util.List;
@@ -17,10 +18,10 @@ public class Arguments {
         this.expressions = expressions;
     }
 
-    public <T> List<T> fold(Expression.Catamorphism<T> cata) {
+    public <T, C> List<Pair<T, C>> fold(Expression.Catamorphism<T, C> cata, C context) {
         return expressions
                 .stream()
-                .map(e -> e.fold(cata))
+                .map(e -> e.fold(cata, context))
                 .collect(toList());
     }
 }

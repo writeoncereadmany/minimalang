@@ -30,7 +30,7 @@ public class HelloWorldTest {
 
         Program program = compiler.compile("print[\"Hello World!\"]");
 
-        Value endResult = program.run(evaluator(environment));
+        Value endResult = program.run(evaluator(environment), "dummy");
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello World!"));
@@ -47,7 +47,7 @@ public class HelloWorldTest {
                 "print[\"Then another five\"]",
                 "print[\"And seven more to finish\"]"));
 
-        Value endResult = program.run(evaluator(environment));
+        Value endResult = program.run(evaluator(environment), "dummy");
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Seven syllables begin", "Then another five", "And seven more to finish"));

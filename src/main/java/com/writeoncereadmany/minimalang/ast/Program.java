@@ -11,7 +11,7 @@ public class Program {
         this.expression = expression;
     }
 
-    public <T> T run(Expression.Catamorphism<T> cata) {
-        return expression.fold(cata);
+    public <T, C> T run(Expression.Catamorphism<T, C> cata, C initialContext) {
+        return expression.fold(cata, initialContext).left;
     }
 }
