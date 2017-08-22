@@ -20,7 +20,7 @@ import static co.unruly.control.result.Transformers.onSuccess;
  */
 public interface Evaluator {
 
-    static Expression.Catamorphism<Value, String> evaluator(Map<String, Value> environment) {
+    static Expression.Catamorphism<Value, Map<String, Value>> evaluator() {
         return new Expression.Catamorphism<>(
             (function, arguments, context) -> startWith(function)
                     .then(castTo(FunctionValue.class))
@@ -28,7 +28,7 @@ public interface Evaluator {
                     .then(onSuccess(v -> Pair.of(v, context)))
                     .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
             contextFree(StringValue::new),
-            contextFree(environment::get),
+            (name, context) -> Pair.of(context.get(name), context),
             contextFree(values -> values.get(values.size() - 1))
         );
     }
