@@ -1,6 +1,6 @@
 package com.writeoncereadmany.minimalang.runtime.values.prelude;
 
-import com.writeoncereadmany.minimalang.runtime.MinimalangExecutionException;
+import com.writeoncereadmany.minimalang.runtime.EvaluationException;
 import com.writeoncereadmany.minimalang.runtime.values.FunctionValue;
 import com.writeoncereadmany.minimalang.runtime.values.StringValue;
 import com.writeoncereadmany.minimalang.runtime.values.Value;
@@ -29,11 +29,11 @@ public class PrintFunction implements FunctionValue {
     @Override
     public Value invoke(List<Value> values) {
         if(values.size() != 1) {
-            throw new MinimalangExecutionException("Arity error");
+            throw new EvaluationException("Arity error");
         }
         Value firstParam = values.get(0);
         if(!(firstParam instanceof StringValue)) {
-            throw new MinimalangExecutionException("Type error: String expected");
+            throw new EvaluationException("Type error: String expected");
         }
         printChannel.accept(((StringValue)firstParam).text);
 

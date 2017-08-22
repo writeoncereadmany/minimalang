@@ -22,7 +22,7 @@ public interface Evaluator {
             (function, arguments) -> startWith(function)
                     .then(castTo(FunctionValue.class))
                     .then(onSuccess(f -> f.invoke(arguments)))
-                    .then(Resolvers.getOrThrow(__ -> new MinimalangExecutionException("Can only execute functions"))),
+                    .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
             StringValue::new,
             environment::get,
             values -> values.get(values.size() - 1)
