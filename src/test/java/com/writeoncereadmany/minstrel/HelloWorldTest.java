@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Created by tomj on 27/07/2017.
- */
 public class HelloWorldTest {
 
     public Compiler compiler = new Compiler();
