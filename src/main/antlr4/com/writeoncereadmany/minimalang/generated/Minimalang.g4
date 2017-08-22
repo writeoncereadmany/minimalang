@@ -9,16 +9,17 @@ fragment DIGIT: [0-9];
 
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 
-WHITESPACE : [ \t\r\n] -> skip;
+WHITESPACE : [ \t\r] -> skip;
 
 // PARSING
 
 program : expression EOF;
 
 expression
-  : STRING_LITERAL  # string
-  | IDENTIFIER      # variable
-  | expression args # call
+  : STRING_LITERAL             # string
+  | IDENTIFIER                 # variable
+  | expression args            # call
+  | expression '\n' expression # sequence
   ;
 
 args : '[' (expression (',' expression)*)? ']';

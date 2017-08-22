@@ -24,7 +24,8 @@ public interface Evaluator {
                     .then(onSuccess(f -> f.invoke(arguments)))
                     .then(Resolvers.getOrThrow(__ -> new MinimalangExecutionException("Can only execute functions"))),
             StringValue::new,
-            environment::get
+            environment::get,
+            values -> values.get(values.size() - 1)
         );
     }
 }

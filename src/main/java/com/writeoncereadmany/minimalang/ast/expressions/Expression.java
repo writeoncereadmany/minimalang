@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static java.util.stream.Collectors.toList;
+
 public abstract class Expression {
 
     private Expression() {}
@@ -27,6 +29,10 @@ public abstract class Expression {
 
     public static Expression variable(String name) {
         return new Variable(name);
+    }
+
+    public static Expression sequence(List<Expression> expressions) {
+        return new Sequence(expressions);
     }
 
     public abstract <T> T fold(Catamorphism<T> cata);
@@ -60,7 +66,7 @@ public abstract class Expression {
     }
 
     private static class StringLiteral extends Expression {
-        private String text;
+        private final String text;
 
         public StringLiteral(String text) {
             this.text = text;
@@ -73,7 +79,7 @@ public abstract class Expression {
     }
 
     private static class Variable extends Expression {
-        private String name;
+        private final String name;
 
         public Variable(String name) {
             this.name = name;
@@ -82,6 +88,19 @@ public abstract class Expression {
         @Override
         public <T> T fold(Catamorphism<T> cata) {
             return cata.onVariable.apply(name);
+        }
+    }
+
+    private static class Sequence extends Expression {
+        private final List<Expression> expressions;
+
+        public Sequence(List<Expression> expressions) {
+            this.expressions = expressions;
+        }
+
+        @Override
+        public <T> T fold(Catamorphism<T> cata) {
+            return cata.onSequence.apply(expressions.stream().map(e -> e.fold(cata)).collect(toList()));
         }
     }
 
@@ -95,11 +114,18 @@ public abstract class Expression {
         public final BiFunction<T, List<T>, T> onCall;
         public final Function<String, T> onStringLiteral;
         public final Function<String, T> onVariable;
+        public final Function<List<T>, T> onSequence;
 
-        public Catamorphism(BiFunction<T, List<T>, T> onCall, Function<String, T> onStringLiteral, Function<String, T> onVariable) {
+        public Catamorphism(
+            BiFunction<T, List<T>, T> onCall,
+            Function<String, T> onStringLiteral,
+            Function<String, T> onVariable,
+            Function<List<T>, T> onSequence
+        ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
             this.onVariable = onVariable;
+            this.onSequence = onSequence;
         }
     }
 }

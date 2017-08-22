@@ -37,6 +37,23 @@ public class HelloWorldTest {
     }
 
     @Test
+    public void canPrintMultipleThings() {
+        List<String> printed = new ArrayList<String>();
+
+        Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
+
+        Program program = compiler.compile(String.join("\n",
+                "print[\"Seven syllables begin\"]",
+                "print[\"Then another five\"]",
+                "print[\"And seven more to finish\"]"));
+
+        Value endResult = program.run(evaluator(environment));
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("Seven syllables begin", "Then another five", "And seven more to finish"));
+    }
+
+    @Test
     public void failsToParseBareWords() {
         assertThrows(ParseException.class, () -> compiler.compile("Hello World"));
     }
