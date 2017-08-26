@@ -3,6 +3,7 @@ package com.writeoncereadmany.minimalang.runtime;
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Resolvers;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
+import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.values.*;
 
 import java.util.HashMap;
@@ -22,9 +23,9 @@ import static com.writeoncereadmany.minimalang.util.MapUtils.immutablePut;
  */
 public interface Evaluator {
 
-    static Expression.Catamorphism<Value, Map<String, Value>> evaluator() {
+    static Catamorphism<Value, Map<String, Value>> evaluator() {
 
-        return new Expression.Catamorphism<>(
+        return new Catamorphism<>(
             (function, arguments, cata, context) -> startWith(function)
                 .then(castTo(FunctionValue.class))
                 .then(onSuccess(f -> f.invoke(arguments, cata, context)))
@@ -39,7 +40,8 @@ public interface Evaluator {
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
                 .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))),
-            contextFree(Closure::new)
+            contextFree(Closure::new),
+            contextFree(NumberValue::new)
         );
     }
 

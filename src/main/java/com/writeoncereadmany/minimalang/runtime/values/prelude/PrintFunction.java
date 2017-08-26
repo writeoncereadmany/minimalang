@@ -3,6 +3,7 @@ package com.writeoncereadmany.minimalang.runtime.values.prelude;
 import co.unruly.control.result.Resolvers;
 import co.unruly.control.result.Result;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
+import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.EvaluationException;
 import com.writeoncereadmany.minimalang.runtime.values.FunctionValue;
 import com.writeoncereadmany.minimalang.runtime.values.StringValue;
@@ -36,14 +37,11 @@ public class PrintFunction implements FunctionValue {
     }
 
     @Override
-    public Value invoke(List<Value> arguments, Expression.Catamorphism<Value, Map<String, Value>> cata, Map<String, Value> context) {
+    public Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata, Map<String, Value> context) {
         return startWith(arguments)
             .then(extractSingleValue())
             .then(onFailure(args -> "Arity error: expected 1 argument, got " + args.size()))
-            .then(onSuccess(castTo(StringValue.class)))
-            .then(onSuccess(onFailure(__ -> "Type error")))
-            .then(mergeFailures())
-            .then(onSuccess(string -> string.text))
+            .then(onSuccess(string -> string.show()))
             .then(onSuccessDo(printChannel::accept))
             .then(onSuccess(__ -> SUCCESS))
             .then(Resolvers.getOrThrow(EvaluationException::new));

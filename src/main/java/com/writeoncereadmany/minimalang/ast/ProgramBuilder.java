@@ -35,6 +35,8 @@ public interface ProgramBuilder {
                     variable(var.IDENTIFIER().getText())),
                 ifType(MinimalangParser.StringContext.class, str ->
                     stringLiteral(stripSurroundingQuotes(str.STRING_LITERAL().getText()))),
+            ifType(MinimalangParser.NumberContext.class, num ->
+                    numberLiteral(num.NUMBER_LITERAL().getText())),
                 ifType(MinimalangParser.SequenceContext.class, seq ->
                     sequence(seq.expression()
                         .stream()

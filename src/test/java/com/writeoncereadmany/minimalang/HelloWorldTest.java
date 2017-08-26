@@ -22,7 +22,7 @@ public class HelloWorldTest {
 
     public Compiler compiler = new Compiler();
 
-    private final List<String> printed = new ArrayList<String>();
+    private final List<String> printed = new ArrayList<>();
     private final Map<String, Value> prelude = mapOf(entry("print", new PrintFunction(printed::add)));
 
     @Test
@@ -33,6 +33,16 @@ public class HelloWorldTest {
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello World!"));
+    }
+
+    @Test
+    public void canPrintNumbers() {
+        Program program = compiler.compile("print[12.5]");
+
+        Value endResult = program.run(evaluator(), prelude);
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("12.5"));
     }
 
     @Test
@@ -65,8 +75,8 @@ public class HelloWorldTest {
     public void canCreateAndAccessObjects() {
         Program program = compiler.compile(String.join("\n",
                 "point is { x: 'Hello', y: 'World' }",
-                "print[point.x]",
-                "print[point.y]"
+                "print[point:x]",
+                "print[point:y]"
             ));
 
         Value endResult = program.run(evaluator(), prelude);

@@ -32,6 +32,10 @@ public abstract class Expression {
         return new StringLiteral(text);
     }
 
+    public static Expression numberLiteral(String number) {
+        return new NumberLiteral(number);
+    }
+
     public static Expression variable(String name) {
         return new Variable(name);
     }
@@ -98,6 +102,19 @@ public abstract class Expression {
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
             return cata.onStringLiteral.apply(text, context);
+        }
+    }
+
+    private static class NumberLiteral extends Expression {
+        private final String text;
+
+        public NumberLiteral(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onNumberLiteral.apply(text, context);
         }
     }
 
@@ -216,6 +233,7 @@ public abstract class Expression {
         public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
         public final BiInterpreter<List<String>, Expression, T, C> onFunction;
+        public final Interpreter<String, T, C> onNumberLiteral;
 
         public Catamorphism(
             TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
@@ -225,7 +243,8 @@ public abstract class Expression {
             BiInterpreter<String, T, T, C> onDeclaration,
             Interpreter<Map<String, T>, T, C> onObjectLiteral,
             BiInterpreter<T, String, T, C> onAccess,
-            BiInterpreter<List<String>, Expression, T, C> onFunction
+            BiInterpreter<List<String>, Expression, T, C> onFunction,
+            Interpreter<String, T, C> onNumberLiteral
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
@@ -235,6 +254,7 @@ public abstract class Expression {
             this.onObjectLiteral = onObjectLiteral;
             this.onAccess = onAccess;
             this.onFunction = onFunction;
+            this.onNumberLiteral = onNumberLiteral;
         }
     }
 
