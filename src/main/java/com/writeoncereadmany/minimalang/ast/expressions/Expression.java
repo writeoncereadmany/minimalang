@@ -2,7 +2,6 @@ package com.writeoncereadmany.minimalang.ast.expressions;
 
 import co.unruly.control.PartialApplication.TriFunction;
 import co.unruly.control.pair.Pair;
-import com.writeoncereadmany.minimalang.ast.misc.Arguments;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -21,7 +20,7 @@ public abstract class Expression {
      *************************************/
 
 
-    public static Expression call(Expression function, Arguments arguments) {
+    public static Expression call(Expression function, List<Expression> arguments) {
         return new Call(function, arguments);
     }
 
@@ -55,9 +54,9 @@ public abstract class Expression {
 
     private static class Call extends Expression {
         private final Expression function;
-        private final Arguments arguments;
+        private final List<Expression> arguments;
 
-        private Call(Expression function, Arguments arguments) {
+        private Call(Expression function, List<Expression> arguments) {
             this.function = function;
             this.arguments = arguments;
         }
@@ -66,7 +65,7 @@ public abstract class Expression {
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
             return cata.onCall.apply(
                     function.fold(cata, context).left,
-                    arguments.fold(cata, context).stream().map(Pair::left).collect(toList()),
+                    arguments.stream().map(arg -> arg.fold(cata, context)).map(Pair::left).collect(toList()),
                     context
             );
         }

@@ -1,18 +1,19 @@
 package com.writeoncereadmany.minimalang.util;
 
-import co.unruly.control.pair.Pair;
+import co.unruly.control.result.Result;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Function;
 
 public interface ListUtils {
 
-    static <T> Optional<Pair<T, List<T>>> headAndTail(List<T> items) {
-        if(items.isEmpty()) {
-            return Optional.empty();
-        }
-        else {
-            return Optional.of(Pair.of(items.get(0), items.subList(1, items.size() - 1)));
-        }
+    static <T> Function<List<T>, Result<T, List<T>>> extractSingleValue() {
+        return items -> {
+            if(items.size() == 1) {
+                return Result.success(items.get(0));
+            } else {
+                return Result.failure(items);
+            }
+        };
     }
 }
