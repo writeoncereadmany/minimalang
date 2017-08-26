@@ -14,7 +14,11 @@ import static java.util.stream.Collectors.toList;
 public interface ProgramBuilder {
 
     static Program build(MinimalangParser.ProgramContext program) {
-        return new Program(buildExpression(program.expression()));
+        return new Program(program
+            .expression()
+            .stream()
+            .map(ProgramBuilder::buildExpression)
+            .collect(toList()));
     }
 
     static Expression buildExpression(MinimalangParser.ExpressionContext expression) {
@@ -29,7 +33,11 @@ public interface ProgramBuilder {
                             .collect(toList()))),
                 ifType(MinimalangParser.VariableContext.class, var -> variable(var.IDENTIFIER().getText())),
                 ifType(MinimalangParser.StringContext.class, str -> stringLiteral(stripSurroundingQuotes(str.STRING_LITERAL().getText()))),
-                ifType(MinimalangParser.SequenceContext.class, seq -> sequence(buildExpression(seq.expression(0)), buildExpression(seq.expression(1)))),
+                ifType(MinimalangParser.SequenceContext.class, seq ->
+                    sequence(seq.expression()
+                        .stream()
+                        .map(ProgramBuilder::buildExpression)
+                        .collect(toList()))),
                 ifType(MinimalangParser.DeclarationContext.class, dec -> declaration(dec.IDENTIFIER().getText(), buildExpression(dec.expression()))),
                 ifType(MinimalangParser.ObjectContext.class, obj ->
                     objectLiteral(HigherOrderFunctions.zip(

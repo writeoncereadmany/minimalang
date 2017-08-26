@@ -4,6 +4,7 @@ import co.unruly.control.PartialApplication.TriFunction;
 import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -35,8 +36,8 @@ public abstract class Expression {
         return new Variable(name);
     }
 
-    public static Expression sequence(Expression first, Expression second) {
-        return new Sequence(first, second);
+    public static Expression sequence(List<Expression> expressions) {
+        return new Sequence(expressions);
     }
 
     public static Expression declaration(String name, Expression expression) {
@@ -109,19 +110,23 @@ public abstract class Expression {
     }
 
     private static class Sequence extends Expression {
-        private final Expression first;
-        private final Expression second;
+        private final List<Expression> expressions;
 
-        public Sequence(Expression first, Expression second) {
-            this.first = first;
-            this.second = second;
+        public Sequence(List<Expression> expressions) {
+            this.expressions = expressions;
         }
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            Pair<T, C> afterFirst = first.fold(cata, context);
-            Pair<T, C> afterSecond = second.fold(cata, afterFirst.right);
-            return cata.onSequence.apply(afterFirst.left, afterSecond.left, afterSecond.right);
+            Expression firstExpression = expressions.get(0);
+            List<T> results = new ArrayList<>();
+            Pair<T, C> current = firstExpression.fold(cata, context);
+            results.add(current.left);
+            for(Expression next : expressions.subList(1, expressions.size())) {
+                current = next.fold(cata, current.right);
+                results.add(current.left);
+            }
+            return cata.onSequence.apply(results, current.right);
         }
     }
 
@@ -185,7 +190,7 @@ public abstract class Expression {
         public final BiInterpreter<T, List<T>, T, C> onCall;
         public final Interpreter<String, T, C> onStringLiteral;
         public final Interpreter<String, T, C> onVariable;
-        public final BiInterpreter<T, T, T, C> onSequence;
+        public final Interpreter<List<T>, T, C> onSequence;
         public final BiInterpreter<String, T, T, C> onDeclaration;
         public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
@@ -194,7 +199,7 @@ public abstract class Expression {
             BiInterpreter<T, List<T>, T, C> onCall,
             Interpreter<String, T, C> onStringLiteral,
             Interpreter<String, T, C> onVariable,
-            BiInterpreter<T, T, T, C> onSequence,
+            Interpreter<List<T>, T, C> onSequence,
             BiInterpreter<String, T, T, C> onDeclaration,
             Interpreter<Map<String, T>, T, C> onObjectLiteral,
             BiInterpreter<T, String, T, C> onAccess

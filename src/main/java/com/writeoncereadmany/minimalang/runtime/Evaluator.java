@@ -30,7 +30,7 @@ public interface Evaluator {
                 .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions")))),
             contextFree(StringValue::new),
             (name, context) -> Pair.of(context.get(name), context),
-            contextFree((first, second) -> second),
+            contextFree(expressions -> expressions.get(expressions.size() - 1)),
             (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value)),
             contextFree(ObjectValue::new),
             contextFree((object, field) -> startWith(object)

@@ -38,9 +38,22 @@ public class HelloWorldTest {
     @Test
     public void canPrintMultipleThings() {
         Program program = compiler.compile(String.join("\n",
-                "print['Seven syllables to start'];",
-                "print['Then another five'];",
+                "print['Seven syllables to start']",
+                "print['Then another five']",
                 "print['And seven more to finish']"));
+
+        Value endResult = program.run(evaluator(), prelude);
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("Seven syllables to start", "Then another five", "And seven more to finish"));
+    }
+
+    @Test
+    public void canGroupMultipleThingsWithParentheses() {
+        Program program = compiler.compile(String.join("\n",
+                "( print['Seven syllables to start'], ",
+                "print['Then another five'], ",
+                "print['And seven more to finish'])"));
 
         Value endResult = program.run(evaluator(), prelude);
 
@@ -51,8 +64,8 @@ public class HelloWorldTest {
     @Test
     public void canCreateAndAccessObjects() {
         Program program = compiler.compile(String.join("\n",
-                "point is { x: 'Hello', y: 'World' };",
-                "print[point.x];",
+                "point is { x: 'Hello', y: 'World' }",
+                "print[point.x]",
                 "print[point.y]"
             ));
 
@@ -65,8 +78,8 @@ public class HelloWorldTest {
     @Test
     public void canStoreThingsInVariables() {
         Program program = compiler.compile(String.join("\n",
-                "message is 'Hello, World!';",
-                "print[message];",
+                "message is 'Hello, World!'",
+                "print[message]",
                 "print[message]"
         ));
 
@@ -74,11 +87,6 @@ public class HelloWorldTest {
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello, World!", "Hello, World!"));
-    }
-
-    @Test
-    public void failsToParseBareWords() {
-        assertThrows(ParseException.class, () -> compiler.compile("Hello World"));
     }
 
     @Test

@@ -13,7 +13,7 @@ WHITESPACE : [ \t\r\n] -> skip;
 
 // PARSING
 
-program : expression EOF;
+program : expression+ EOF;
 
 expression
   : STRING_LITERAL                                                          # string
@@ -22,5 +22,5 @@ expression
   | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
   | expression '.' IDENTIFIER                                               # access
   | expression '[' (expression (',' expression)*)? ']'                      # call
-  | expression ';' expression                                               # sequence
+  | '(' expression (',' expression)* ')'                                    # sequence
   ;
