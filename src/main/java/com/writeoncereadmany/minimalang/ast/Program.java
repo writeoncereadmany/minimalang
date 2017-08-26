@@ -14,12 +14,12 @@ public class Program {
         this.expressions = expressions;
     }
 
-    public <T, C> T run(Expression.Catamorphism<T, C> cata, C initialContext) {
+    public <T, C> Pair<T, C> run(Expression.Catamorphism<T, C> cata, C initialContext) {
         Expression firstExpression = expressions.get(0);
         Pair<T, C> current = firstExpression.fold(cata, initialContext);
         for(Expression next : expressions.subList(1, expressions.size())) {
             current = next.fold(cata, current.right);
         }
-        return current.left;
+        return current;
     }
 }

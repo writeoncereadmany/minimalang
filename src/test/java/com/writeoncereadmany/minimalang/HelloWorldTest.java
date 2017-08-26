@@ -23,13 +23,13 @@ public class HelloWorldTest {
     public Compiler compiler = new Compiler();
 
     private final List<String> printed = new ArrayList<>();
-    private final Map<String, Value> prelude = mapOf(entry("print", new PrintFunction(printed::add)));
+    private final Map<String, Value> builtins = mapOf(entry("print", new PrintFunction(printed::add)));
 
     @Test
     public void helloWorldPrints() {
         Program program = compiler.compile("print['Hello World!']");
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello World!"));
@@ -39,7 +39,7 @@ public class HelloWorldTest {
     public void canPrintNumbers() {
         Program program = compiler.compile("print[12.5]");
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("12.5"));
@@ -52,7 +52,7 @@ public class HelloWorldTest {
                 "print['Then another five']",
                 "print['And seven more to finish']"));
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Seven syllables to start", "Then another five", "And seven more to finish"));
@@ -65,7 +65,7 @@ public class HelloWorldTest {
                 "print['Then another five'], ",
                 "print['And seven more to finish'])"));
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Seven syllables to start", "Then another five", "And seven more to finish"));
@@ -79,7 +79,7 @@ public class HelloWorldTest {
                 "print[point:y]"
             ));
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello", "World"));
@@ -92,7 +92,7 @@ public class HelloWorldTest {
             "print[first['Hello', 'World']]"
         ));
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello"));
@@ -106,7 +106,7 @@ public class HelloWorldTest {
                 "print[message]"
         ));
 
-        Value endResult = program.run(evaluator(), prelude);
+        Value endResult = program.run(evaluator(), builtins).left;
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello, World!", "Hello, World!"));
