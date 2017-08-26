@@ -24,21 +24,19 @@ public interface Evaluator {
     static Expression.Catamorphism<Value, Map<String, Value>> evaluator() {
 
         return new Expression.Catamorphism<>(
-            (function, arguments, context) -> startWith(function)
+            contextFree((function, arguments) -> startWith(function)
                 .then(castTo(FunctionValue.class))
                 .then(onSuccess(f -> f.invoke(arguments)))
-                .then(onSuccess(v -> Pair.of(v, context)))
-                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
+                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions")))),
             contextFree(StringValue::new),
             (name, context) -> Pair.of(context.get(name), context),
-            (first, second, context) -> Pair.of(second, context),
+            contextFree((first, second) -> second),
             (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value)),
             contextFree(ObjectValue::new),
-            (object, field, context) -> startWith(object)
+            contextFree((object, field) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
-                .then(onSuccess(v1 -> Pair.of(v1, context)))
-                .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))
+                .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects"))))
         );
     }
 
