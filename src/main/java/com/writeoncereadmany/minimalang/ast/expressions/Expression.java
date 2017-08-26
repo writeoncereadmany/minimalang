@@ -1,13 +1,11 @@
 package com.writeoncereadmany.minimalang.ast.expressions;
 
-import co.unruly.control.PartialApplication.TriFunction;
 import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static co.unruly.control.pair.Pairs.onRight;
@@ -24,10 +22,6 @@ public abstract class Expression {
      *************************************/
 
 
-    public static Expression call(Expression function, List<Expression> arguments) {
-        return new Call(function, arguments);
-    }
-
     public static Expression stringLiteral(String text) {
         return new StringLiteral(text);
     }
@@ -36,16 +30,12 @@ public abstract class Expression {
         return new NumberLiteral(number);
     }
 
-    public static Expression variable(String name) {
-        return new Variable(name);
-    }
-
-    public static Expression sequence(List<Expression> expressions) {
-        return new Sequence(expressions);
-    }
-
     public static Expression declaration(String name, Expression expression) {
         return new Declaration(name, expression);
+    }
+
+    public static Expression variable(String name) {
+        return new Variable(name);
     }
 
     public static Expression objectLiteral(List<Pair<String, Expression>> fields) {
@@ -60,6 +50,14 @@ public abstract class Expression {
         return new FunctionLiteral(arguments, body);
     }
 
+    public static Expression call(Expression function, List<Expression> arguments) {
+        return new Call(function, arguments);
+    }
+
+    public static Expression sequence(List<Expression> expressions) {
+        return new Sequence(expressions);
+    }
+
     public abstract <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context);
 
     public <T> T then(Function<Expression, T> function) {
@@ -71,26 +69,6 @@ public abstract class Expression {
      * Sum type implementations
      *
      ************************************/
-
-    private static class Call extends Expression {
-        private final Expression function;
-        private final List<Expression> arguments;
-
-        private Call(Expression function, List<Expression> arguments) {
-            this.function = function;
-            this.arguments = arguments;
-        }
-
-        @Override
-        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return cata.onCall.apply(
-                    function.fold(cata, context).left,
-                    arguments.stream().map(arg -> arg.fold(cata, context)).map(Pair::left).collect(toList()),
-                    cata,
-                    context
-            );
-        }
-    }
 
     private static class StringLiteral extends Expression {
         private final String text;
@@ -128,27 +106,6 @@ public abstract class Expression {
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
             return cata.onVariable.apply(name, context);
-        }
-    }
-
-    private static class Sequence extends Expression {
-        private final List<Expression> expressions;
-
-        public Sequence(List<Expression> expressions) {
-            this.expressions = expressions;
-        }
-
-        @Override
-        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            Expression firstExpression = expressions.get(0);
-            List<T> results = new ArrayList<>();
-            Pair<T, C> current = firstExpression.fold(cata, context);
-            results.add(current.left);
-            for(Expression next : expressions.subList(1, expressions.size())) {
-                current = next.fold(cata, current.right);
-                results.add(current.left);
-            }
-            return cata.onSequence.apply(results, current.right);
         }
     }
 
@@ -218,6 +175,47 @@ public abstract class Expression {
         }
     }
 
+    private static class Call extends Expression {
+        private final Expression function;
+        private final List<Expression> arguments;
+
+        private Call(Expression function, List<Expression> arguments) {
+            this.function = function;
+            this.arguments = arguments;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onCall.apply(
+                function.fold(cata, context).left,
+                arguments.stream().map(arg -> arg.fold(cata, context)).map(Pair::left).collect(toList()),
+                cata,
+                context
+            );
+        }
+    }
+
+    private static class Sequence extends Expression {
+        private final List<Expression> expressions;
+
+        public Sequence(List<Expression> expressions) {
+            this.expressions = expressions;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            Expression firstExpression = expressions.get(0);
+            List<T> results = new ArrayList<>();
+            Pair<T, C> current = firstExpression.fold(cata, context);
+            results.add(current.left);
+            for(Expression next : expressions.subList(1, expressions.size())) {
+                current = next.fold(cata, current.right);
+                results.add(current.left);
+            }
+            return cata.onSequence.apply(results, current.right);
+        }
+    }
+
     /*************************************
      *
      * Catamorphism holder
@@ -236,15 +234,15 @@ public abstract class Expression {
         public final Interpreter<String, T, C> onNumberLiteral;
 
         public Catamorphism(
-            TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
             Interpreter<String, T, C> onStringLiteral,
-            Interpreter<String, T, C> onVariable,
-            Interpreter<List<T>, T, C> onSequence,
+            Interpreter<String, T, C> onNumberLiteral,
             BiInterpreter<String, T, T, C> onDeclaration,
+            Interpreter<String, T, C> onVariable,
             Interpreter<Map<String, T>, T, C> onObjectLiteral,
             BiInterpreter<T, String, T, C> onAccess,
             BiInterpreter<List<String>, Expression, T, C> onFunction,
-            Interpreter<String, T, C> onNumberLiteral
+            TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
+            Interpreter<List<T>, T, C> onSequence
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;

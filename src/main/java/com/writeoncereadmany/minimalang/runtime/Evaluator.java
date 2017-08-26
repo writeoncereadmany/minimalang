@@ -6,8 +6,6 @@ import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.values.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -26,22 +24,22 @@ public interface Evaluator {
     static Catamorphism<Value, Map<String, Value>> evaluator() {
 
         return new Catamorphism<>(
-            (function, arguments, cata, context) -> startWith(function)
-                .then(castTo(FunctionValue.class))
-                .then(onSuccess(f -> f.invoke(arguments, cata, context)))
-                .then(onSuccess(result -> Pair.of(result, context)))
-                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
             contextFree(StringValue::new),
-            (name, context) -> Pair.of(context.get(name), context),
-            contextFree(expressions -> expressions.get(expressions.size() - 1)),
+            contextFree(NumberValue::new),
             (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value)),
+            (name, context) -> Pair.of(context.get(name), context),
             contextFree(ObjectValue::new),
             contextFree((object, field) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
                 .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))),
             contextFree(Closure::new),
-            contextFree(NumberValue::new)
+            (function, arguments, cata, context) -> startWith(function)
+                .then(castTo(FunctionValue.class))
+                .then(onSuccess(f -> f.invoke(arguments, cata, context)))
+                .then(onSuccess(result -> Pair.of(result, context)))
+                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
+            contextFree(expressions -> expressions.get(expressions.size() - 1))
         );
     }
 
