@@ -182,22 +182,22 @@ public abstract class Expression {
      *************************************/
 
     public static class Catamorphism<T, C> {
-        public final TriFunction<T, List<T>, C, Pair<T, C>> onCall;
-        public final BiFunction<String, C, Pair<T, C>> onStringLiteral;
-        public final BiFunction<String, C, Pair<T, C>> onVariable;
-        public final TriFunction<T, T, C, Pair<T, C>> onSequence;
-        public final TriFunction<String, T, C, Pair<T, C>> onDeclaration;
-        public final BiFunction<Map<String, T>, C, Pair<T, C>> onObjectLiteral;
-        public final TriFunction<T, String, C, Pair<T, C>> onAccess;
+        public final BiInterpreter<T, List<T>, T, C> onCall;
+        public final Interpreter<String, T, C> onStringLiteral;
+        public final Interpreter<String, T, C> onVariable;
+        public final BiInterpreter<T, T, T, C> onSequence;
+        public final BiInterpreter<String, T, T, C> onDeclaration;
+        public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
+        public final BiInterpreter<T, String, T, C> onAccess;
 
         public Catamorphism(
-            TriFunction<T, List<T>, C, Pair<T, C>> onCall,
-            BiFunction<String, C, Pair<T, C>> onStringLiteral,
-            BiFunction<String, C, Pair<T, C>> onVariable,
-            TriFunction<T, T, C, Pair<T, C>> onSequence,
-            TriFunction<String, T, C, Pair<T, C>> onDeclaration,
-            BiFunction<Map<String, T>, C, Pair<T, C>> onObjectLiteral,
-            TriFunction<T, String, C, Pair<T, C>> onAccess
+            BiInterpreter<T, List<T>, T, C> onCall,
+            Interpreter<String, T, C> onStringLiteral,
+            Interpreter<String, T, C> onVariable,
+            BiInterpreter<T, T, T, C> onSequence,
+            BiInterpreter<String, T, T, C> onDeclaration,
+            Interpreter<Map<String, T>, T, C> onObjectLiteral,
+            BiInterpreter<T, String, T, C> onAccess
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
@@ -208,4 +208,10 @@ public abstract class Expression {
             this.onAccess = onAccess;
         }
     }
+
+    @FunctionalInterface
+    public interface Interpreter<A, T, C> extends BiFunction<A, C, Pair<T, C>> {}
+
+    @FunctionalInterface
+    public interface BiInterpreter<A, B, T, C> extends TriFunction<A, B, C, Pair<T, C>> {}
 }

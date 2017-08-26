@@ -6,6 +6,7 @@ import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.runtime.values.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -21,12 +22,13 @@ import static com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessVal
 public interface Evaluator {
 
     static Expression.Catamorphism<Value, Map<String, Value>> evaluator() {
+
         return new Expression.Catamorphism<>(
             (function, arguments, context) -> startWith(function)
-                    .then(castTo(FunctionValue.class))
-                    .then(onSuccess(f -> f.invoke(arguments)))
-                    .then(onSuccess(v -> Pair.of(v, context)))
-                    .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
+                .then(castTo(FunctionValue.class))
+                .then(onSuccess(f -> f.invoke(arguments)))
+                .then(onSuccess(v -> Pair.of(v, context)))
+                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
             contextFree(StringValue::new),
             (name, context) -> Pair.of(context.get(name), context),
             (first, second, context) -> Pair.of(second, context),
@@ -35,13 +37,17 @@ public interface Evaluator {
             (object, field, context) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
-                .then(onSuccess(v -> Pair.of(v, context)))
-                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only access fields of objects")))
-            );
+                .then(onSuccess(v1 -> Pair.of(v1, context)))
+                .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))
+        );
     }
 
-    static <E, T, C> BiFunction<E, C, Pair<T, C>> contextFree(Function<E, T> contextFreeFunction) {
+    static <E, T, C> Expression.Interpreter<E, T, C> contextFree(Function<E, T> contextFreeFunction) {
         return (e, c) -> Pair.of(contextFreeFunction.apply(e), c);
+    }
+
+    static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> contextFree(BiFunction<A, B, T> contextFreeFunction) {
+        return (a, b, c) -> Pair.of(contextFreeFunction.apply(a, b), c);
     }
 
     static <K, V> Map<K, V> immutablePut(Map<K, V> original, K key, V value) {
