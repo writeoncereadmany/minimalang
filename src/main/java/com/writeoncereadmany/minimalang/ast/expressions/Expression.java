@@ -52,6 +52,10 @@ public abstract class Expression {
         return new Access(object, field);
     }
 
+    public static Expression function(List<String> arguments, Expression body) {
+        return new FunctionLiteral(arguments, body);
+    }
+
     public abstract <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context);
 
     public <T> T then(Function<Expression, T> function) {
@@ -78,6 +82,7 @@ public abstract class Expression {
             return cata.onCall.apply(
                     function.fold(cata, context).left,
                     arguments.stream().map(arg -> arg.fold(cata, context)).map(Pair::left).collect(toList()),
+                    cata,
                     context
             );
         }
@@ -180,6 +185,22 @@ public abstract class Expression {
         }
     }
 
+    private static class FunctionLiteral extends Expression {
+
+        private final List<String> parameters;
+        private final Expression body;
+
+        private FunctionLiteral(List<String> parameters, Expression body) {
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onFunction.apply(parameters, body, context);
+        }
+    }
+
     /*************************************
      *
      * Catamorphism holder
@@ -187,22 +208,24 @@ public abstract class Expression {
      *************************************/
 
     public static class Catamorphism<T, C> {
-        public final BiInterpreter<T, List<T>, T, C> onCall;
+        public final TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall;
         public final Interpreter<String, T, C> onStringLiteral;
         public final Interpreter<String, T, C> onVariable;
         public final Interpreter<List<T>, T, C> onSequence;
         public final BiInterpreter<String, T, T, C> onDeclaration;
         public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
+        public final BiInterpreter<List<String>, Expression, T, C> onFunction;
 
         public Catamorphism(
-            BiInterpreter<T, List<T>, T, C> onCall,
+            TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
             Interpreter<String, T, C> onStringLiteral,
             Interpreter<String, T, C> onVariable,
             Interpreter<List<T>, T, C> onSequence,
             BiInterpreter<String, T, T, C> onDeclaration,
             Interpreter<Map<String, T>, T, C> onObjectLiteral,
-            BiInterpreter<T, String, T, C> onAccess
+            BiInterpreter<T, String, T, C> onAccess,
+            BiInterpreter<List<String>, Expression, T, C> onFunction
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
@@ -211,12 +234,22 @@ public abstract class Expression {
             this.onDeclaration = onDeclaration;
             this.onObjectLiteral = onObjectLiteral;
             this.onAccess = onAccess;
+            this.onFunction = onFunction;
         }
     }
 
     @FunctionalInterface
-    public interface Interpreter<A, T, C> extends BiFunction<A, C, Pair<T, C>> {}
+    public interface Interpreter<X, T, C> {
+        Pair<T, C> apply(X x, C context);
+    }
 
     @FunctionalInterface
-    public interface BiInterpreter<A, B, T, C> extends TriFunction<A, B, C, Pair<T, C>> {}
+    public interface BiInterpreter<X, Y, T, C>  {
+        Pair<T, C> apply(X x, Y y, C context);
+    }
+
+    @FunctionalInterface
+    public interface TriInterpreter<X, Y, Z, T, C>  {
+        Pair<T, C> apply(X x, Y y, Z z, C context);
+    }
 }

@@ -21,6 +21,7 @@ expression
   | IDENTIFIER                                                              # variable
   | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
   | expression '.' IDENTIFIER                                               # access
+  | '[' (IDENTIFIER (',' IDENTIFIER)*)? ']' '=>' expression                 # function
   | expression '[' (expression (',' expression)*)? ']'                      # call
   | '(' expression (',' expression)* ')'                                    # sequence
   ;

@@ -31,19 +31,32 @@ public interface ProgramBuilder {
                             .stream()
                             .map(ProgramBuilder::buildExpression)
                             .collect(toList()))),
-                ifType(MinimalangParser.VariableContext.class, var -> variable(var.IDENTIFIER().getText())),
-                ifType(MinimalangParser.StringContext.class, str -> stringLiteral(stripSurroundingQuotes(str.STRING_LITERAL().getText()))),
+                ifType(MinimalangParser.VariableContext.class, var ->
+                    variable(var.IDENTIFIER().getText())),
+                ifType(MinimalangParser.StringContext.class, str ->
+                    stringLiteral(stripSurroundingQuotes(str.STRING_LITERAL().getText()))),
                 ifType(MinimalangParser.SequenceContext.class, seq ->
                     sequence(seq.expression()
                         .stream()
                         .map(ProgramBuilder::buildExpression)
                         .collect(toList()))),
-                ifType(MinimalangParser.DeclarationContext.class, dec -> declaration(dec.IDENTIFIER().getText(), buildExpression(dec.expression()))),
+                ifType(MinimalangParser.DeclarationContext.class, dec ->
+                    declaration(
+                        dec.IDENTIFIER().getText(),
+                        buildExpression(dec.expression()))),
                 ifType(MinimalangParser.ObjectContext.class, obj ->
                     objectLiteral(HigherOrderFunctions.zip(
                         obj.IDENTIFIER().stream().map(ParseTree::getText),
                         obj.expression().stream().map(exp -> buildExpression(exp))).collect(toList()))),
-                ifType(MinimalangParser.AccessContext.class, acc -> access(buildExpression(acc.expression()), acc.IDENTIFIER().getText()))
+                ifType(MinimalangParser.AccessContext.class, acc ->
+                    access(
+                        buildExpression(acc.expression()),
+                        acc.IDENTIFIER().getText())),
+                ifType(MinimalangParser.FunctionContext.class, fun ->
+                    function(
+                        fun.IDENTIFIER().stream().map(ParseTree::getText).collect(toList()),
+                        buildExpression(fun.expression())
+                    ))
         ).otherwise(exp -> { throw new RuntimeException("Failed to find an implementation for " + exp.getClass()); });
     }
 }

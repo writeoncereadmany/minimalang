@@ -76,6 +76,19 @@ public class HelloWorldTest {
     }
 
     @Test
+    public void canCreateCustomFunctions() {
+        Program program = compiler.compile(String.join("\n",
+            "first is [x, y] => x",
+            "print[first['Hello', 'World']]"
+        ));
+
+        Value endResult = program.run(evaluator(), prelude);
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("Hello"));
+    }
+
+    @Test
     public void canStoreThingsInVariables() {
         Program program = compiler.compile(String.join("\n",
                 "message is 'Hello, World!'",
