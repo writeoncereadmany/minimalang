@@ -22,15 +22,14 @@ public class HelloWorldTest {
 
     public Compiler compiler = new Compiler();
 
+    private final List<String> printed = new ArrayList<String>();
+    private final Map<String, Value> prelude = mapOf(entry("print", new PrintFunction(printed::add)));
+
     @Test
     public void helloWorldPrints() {
-        List<String> printed = new ArrayList<String>();
+        Program program = compiler.compile("print['Hello World!']");
 
-        Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
-
-        Program program = compiler.compile("print[\"Hello World!\"]");
-
-        Value endResult = program.run(evaluator(), environment);
+        Value endResult = program.run(evaluator(), prelude);
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Hello World!"));
@@ -38,35 +37,43 @@ public class HelloWorldTest {
 
     @Test
     public void canPrintMultipleThings() {
-        List<String> printed = new ArrayList<String>();
-
-        Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
-
         Program program = compiler.compile(String.join("\n",
-                "print[\"Seven syllables to start\"]",
-                "print[\"Then another five\"]",
-                "print[\"And seven more to finish\"]"));
+                "print['Seven syllables to start'];",
+                "print['Then another five'];",
+                "print['And seven more to finish']"));
 
-        Value endResult = program.run(evaluator(), environment);
+        Value endResult = program.run(evaluator(), prelude);
 
         assertThat(endResult, is(SUCCESS));
         assertThat(printed, hasItems("Seven syllables to start", "Then another five", "And seven more to finish"));
     }
 
     @Test
-    public void canStoreThingsInVariables() {
-        List<String> printed = new ArrayList<String>();
-
-        Map<String, Value> environment = mapOf(entry("print", new PrintFunction(printed::add)));
-
+    public void canCreateAndAccessObjects() {
         Program program = compiler.compile(String.join("\n",
-                "message is \"Hello, World!\"",
-                "print[message]"));
+                "point is { x: 'Hello', y: 'World' };",
+                "print[point.x];",
+                "print[point.y]"
+            ));
 
-        Value endResult = program.run(evaluator(), environment);
+        Value endResult = program.run(evaluator(), prelude);
 
         assertThat(endResult, is(SUCCESS));
-        assertThat(printed, hasItems("Hello, World!"));
+        assertThat(printed, hasItems("Hello", "World"));
+    }
+
+    @Test
+    public void canStoreThingsInVariables() {
+        Program program = compiler.compile(String.join("\n",
+                "message is 'Hello, World!';",
+                "print[message];",
+                "print[message]"
+        ));
+
+        Value endResult = program.run(evaluator(), prelude);
+
+        assertThat(endResult, is(SUCCESS));
+        assertThat(printed, hasItems("Hello, World!", "Hello, World!"));
     }
 
     @Test

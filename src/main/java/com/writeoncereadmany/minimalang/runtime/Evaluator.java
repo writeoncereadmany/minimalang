@@ -3,9 +3,7 @@ package com.writeoncereadmany.minimalang.runtime;
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Resolvers;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
-import com.writeoncereadmany.minimalang.runtime.values.FunctionValue;
-import com.writeoncereadmany.minimalang.runtime.values.StringValue;
-import com.writeoncereadmany.minimalang.runtime.values.Value;
+import com.writeoncereadmany.minimalang.runtime.values.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +30,14 @@ public interface Evaluator {
             contextFree(StringValue::new),
             (name, context) -> Pair.of(context.get(name), context),
             (first, second, context) -> Pair.of(second, context),
-            (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value))
-        );
+            (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value)),
+            contextFree(ObjectValue::new),
+            (object, field, context) -> startWith(object)
+                .then(castTo(InterfaceValue.class))
+                .then(onSuccess(obj -> obj.field(field)))
+                .then(onSuccess(v -> Pair.of(v, context)))
+                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only access fields of objects")))
+            );
     }
 
     static <E, T, C> BiFunction<E, C, Pair<T, C>> contextFree(Function<E, T> contextFreeFunction) {

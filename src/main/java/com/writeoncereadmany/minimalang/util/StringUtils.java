@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 
 public interface StringUtils {
 
-    Pattern DOUBLE_QUOTED = Pattern.compile("^\"(.*)\"$");
+    Pattern SINGLE_QUOTED = Pattern.compile("^'(.*)'$");
 
     static String stripSurroundingQuotes(String string) {
-        Matcher matcher = DOUBLE_QUOTED.matcher(string);
+        Matcher matcher = SINGLE_QUOTED.matcher(string);
         if(matcher.find()) {
             return matcher.group(1);
         } else {
