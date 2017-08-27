@@ -1,5 +1,6 @@
 package com.writeoncereadmany.minimalang.runtime;
 
+import co.unruly.control.PartialApplication.TriFunction;
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Resolvers;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
@@ -27,13 +28,13 @@ public interface Evaluator {
             contextFree(StringValue::new),
             contextFree(NumberValue::new),
             (name, value, context) -> Pair.of(SUCCESS, immutablePut(context, name, value)),
-            (name, context) -> Pair.of(context.get(name), context),
+            usingContext((name, context) -> context.get(name)),
             contextFree(ObjectValue::new),
             contextFree((object, field) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
                 .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))),
-            (parameters, body, context) -> Pair.of(new Closure(parameters, body, context), context),
+            usingContext((parameters, body, context) -> new Closure(parameters, body, context)),
             (function, arguments, cata, context) -> startWith(function)
                 .then(castTo(FunctionValue.class))
                 .then(onSuccess(f -> f.invoke(arguments, cata)))
@@ -49,6 +50,14 @@ public interface Evaluator {
 
     static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> contextFree(BiFunction<A, B, T> contextFreeFunction) {
         return (a, b, c) -> Pair.of(contextFreeFunction.apply(a, b), c);
+    }
+
+    static <E, T, C> Expression.Interpreter<E, T, C> usingContext(BiFunction<E, C, T> contextUsingFunction) {
+        return (e, c) -> Pair.of(contextUsingFunction.apply(e, c), c);
+    }
+
+    static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> usingContext(TriFunction<A, B, C, T> contextUsingFunction) {
+        return (a, b, c) -> Pair.of(contextUsingFunction.apply(a, b, c), c);
     }
 
 }
