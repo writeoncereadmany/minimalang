@@ -4,6 +4,7 @@ import com.writeoncereadmany.minimalang.ast.Program;
 import com.writeoncereadmany.minimalang.runtime.Evaluator;
 import com.writeoncereadmany.minimalang.runtime.values.Value;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.PrintFunction;
+import com.writeoncereadmany.minimalang.support.Loader;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -27,7 +28,7 @@ public class ClosureTest {
 
     @Test
     public void canBindOverAnEnvironment() throws Exception {
-        String sourceCode = String.join("\n", Files.readAllLines(Paths.get("src/test/resources/closure.mml")));
+        String sourceCode = Loader.loadSource("closure.mml");
 
         Program program = compiler.compile(sourceCode);
         program.run(evaluator(), builtins);
