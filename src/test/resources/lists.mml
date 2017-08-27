@@ -1,0 +1,17 @@
+nil is [onPresent, onEmpty] => onEmpty[]
+cons is [head, tail] => [onPresent, onEmpty] => onPresent[head, tail]
+
+forEach is [list, callback, continuation] => list[
+    [h, t] => (callback[h], continuation[t, callback, continuation]),
+    [] => SUCCESS
+]
+
+favouriteThings is
+  cons['Raindrops on roses',
+  cons['Whiskers on kittens',
+  cons['Bright copper kettles',
+  cons['Warm woollen mittens',
+  cons['Brown paper packages tied up with strings',
+  nil]]]]]
+
+forEach[favouriteThings, print, forEach]

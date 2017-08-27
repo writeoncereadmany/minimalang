@@ -21,8 +21,8 @@ expression
   : STRING_LITERAL                                                          # string
   | NUMBER_LITERAL                                                          # number
   | IDENTIFIER                                                              # variable
-  | '[' (IDENTIFIER (',' IDENTIFIER)*)? ']' '=>' expression                 # function
   | expression '[' (expression (',' expression)*)? ']'                      # call
+  | '[' (IDENTIFIER (',' IDENTIFIER)*)? ']' '=>' expression                 # function
   | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
   | expression ':' IDENTIFIER                                               # access
   | IDENTIFIER 'is' expression                                              # declaration
