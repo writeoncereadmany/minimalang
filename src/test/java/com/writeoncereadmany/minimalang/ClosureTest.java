@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static co.unruly.control.pair.Maps.entry;
-import static co.unruly.control.pair.Maps.mapOf;
 import static com.writeoncereadmany.minimalang.runtime.Evaluator.evaluator;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
@@ -20,7 +18,7 @@ public class ClosureTest {
     public Compiler compiler = new Compiler();
 
     private final List<String> printed = new ArrayList<>();
-    private final Environment builtins = new Environment(mapOf(entry("print", new PrintFunction(printed::add))));
+    private final Environment builtins = new Environment().with("print", new PrintFunction(printed::add));
 
     @Test
     public void canBindOverAnEnvironment() throws Exception {

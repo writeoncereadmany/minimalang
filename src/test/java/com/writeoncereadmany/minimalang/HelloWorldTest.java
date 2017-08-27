@@ -23,7 +23,7 @@ public class HelloWorldTest {
     public Compiler compiler = new Compiler();
 
     private final List<String> printed = new ArrayList<>();
-    private final Environment builtins = new Environment(mapOf(entry("print", new PrintFunction(printed::add))));
+    private final Environment builtins = new Environment().with("print", new PrintFunction(printed::add));
 
     @Test
     public void helloWorldPrints() {
