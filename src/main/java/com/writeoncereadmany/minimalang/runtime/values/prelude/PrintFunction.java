@@ -37,7 +37,7 @@ public class PrintFunction implements FunctionValue {
     }
 
     @Override
-    public Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata, Map<String, Value> context) {
+    public Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata) {
         return startWith(arguments)
             .then(extractSingleValue())
             .then(onFailure(args -> "Arity error: expected 1 argument, got " + args.size()))

@@ -33,10 +33,10 @@ public interface Evaluator {
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
                 .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))),
-            contextFree(Closure::new),
+            (parameters, body, context) -> Pair.of(new Closure(parameters, body, context), context),
             (function, arguments, cata, context) -> startWith(function)
                 .then(castTo(FunctionValue.class))
-                .then(onSuccess(f -> f.invoke(arguments, cata, context)))
+                .then(onSuccess(f -> f.invoke(arguments, cata)))
                 .then(onSuccess(result -> Pair.of(result, context)))
                 .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
             contextFree(expressions -> expressions.get(expressions.size() - 1))

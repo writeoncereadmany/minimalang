@@ -1,6 +1,5 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
-import co.unruly.control.HigherOrderFunctions;
 import co.unruly.control.pair.Pair;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
@@ -17,15 +16,17 @@ public class Closure implements FunctionValue {
 
     private final List<String> parameters;
     private final Expression body;
+    private final Map<String, Value> context;
 
-    public Closure(List<String> parameters, Expression body) {
+    public Closure(List<String> parameters, Expression body, Map<String, Value> context) {
         this.parameters = parameters;
         this.body = body;
+        this.context = context;
     }
 
 
     @Override
-    public Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata, Map<String, Value> context) {
+    public Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata) {
         if(arguments.size() != parameters.size()) {
             throw new EvaluationException("Wrong number of parameters provided");
         }

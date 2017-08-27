@@ -11,5 +11,5 @@ import java.util.Map;
  */
 public interface FunctionValue extends Value {
 
-    Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata, Map<String, Value> context);
+    Value invoke(List<Value> arguments, Catamorphism<Value, Map<String, Value>> cata);
 }
