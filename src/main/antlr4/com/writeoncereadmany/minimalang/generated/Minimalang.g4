@@ -20,11 +20,11 @@ program : expression+ EOF;
 expression
   : STRING_LITERAL                                                          # string
   | NUMBER_LITERAL                                                          # number
-  | IDENTIFIER 'is' expression                                              # declaration
   | IDENTIFIER                                                              # variable
-  | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
-  | expression ':' IDENTIFIER                                               # access
   | '[' (IDENTIFIER (',' IDENTIFIER)*)? ']' '=>' expression                 # function
   | expression '[' (expression (',' expression)*)? ']'                      # call
+  | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
+  | expression ':' IDENTIFIER                                               # access
+  | IDENTIFIER 'is' expression                                              # declaration
   | '(' expression (',' expression)* ')'                                    # sequence
   ;

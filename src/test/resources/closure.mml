@@ -1,0 +1,6 @@
+binder is [text] => [] => text
+greeter is binder['Hello!']
+locator is binder['World!']
+
+print[greeter[]]
+print[locator[]]
