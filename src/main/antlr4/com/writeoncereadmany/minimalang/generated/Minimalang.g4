@@ -7,7 +7,7 @@ STRING_LITERAL : ['] ~[']* ['];
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 
-NUMBER_LITERAL : DIGIT+ ('.' DIGIT+);
+NUMBER_LITERAL : DIGIT+ ('.' DIGIT+)?;
 
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 
