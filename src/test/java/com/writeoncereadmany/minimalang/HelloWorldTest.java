@@ -1,13 +1,13 @@
 package com.writeoncereadmany.minimalang;
 
 import com.writeoncereadmany.minimalang.ast.Program;
+import com.writeoncereadmany.minimalang.runtime.Environment;
 import com.writeoncereadmany.minimalang.runtime.values.Value;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.PrintFunction;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static co.unruly.control.pair.Maps.entry;
 import static co.unruly.control.pair.Maps.mapOf;
@@ -23,7 +23,7 @@ public class HelloWorldTest {
     public Compiler compiler = new Compiler();
 
     private final List<String> printed = new ArrayList<>();
-    private final Map<String, Value> builtins = mapOf(entry("print", new PrintFunction(printed::add)));
+    private final Environment builtins = new Environment(mapOf(entry("print", new PrintFunction(printed::add))));
 
     @Test
     public void helloWorldPrints() {
