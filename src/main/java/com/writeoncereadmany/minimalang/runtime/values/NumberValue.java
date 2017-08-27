@@ -1,9 +1,7 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
 import com.writeoncereadmany.minimalang.runtime.values.prelude.BuiltinFunction;
-import com.writeoncereadmany.minimalang.runtime.values.prelude.Extractors;
 
-import java.util.Map;
 import java.util.function.BiFunction;
 
 import static co.unruly.control.pair.Maps.entry;
