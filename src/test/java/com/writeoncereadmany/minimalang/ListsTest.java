@@ -35,6 +35,8 @@ public class ListsTest {
             "Whiskers on kittens",
             "Bright copper kettles",
             "Warm woollen mittens",
-            "Brown paper packages tied up with strings"));
+            "Brown paper packages tied up with strings",
+            "108.0",
+            "[one, two, three, four]"));
     }
 }

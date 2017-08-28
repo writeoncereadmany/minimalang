@@ -1,11 +1,8 @@
+'definition of list'
 nil is [onPresent, onEmpty] => onEmpty[]
 cons is [head, tail] => [onPresent, onEmpty] => onPresent[head, tail]
 
-forEach is [list, callback, continuation] => list[
-    [h, t] => (callback[h], continuation[t, callback, continuation]),
-    [] => SUCCESS
-]
-
+'an example of building a list'
 favouriteThings is
   cons['Raindrops on roses',
   cons['Whiskers on kittens',
@@ -14,4 +11,45 @@ favouriteThings is
   cons['Brown paper packages tied up with strings',
   nil]]]]]
 
-forEach[favouriteThings, print, forEach]
+'definition of forEach, showing the contortions required for recursion'
+forEach is [list, callback] => (
+  forEach1 is [list, callback, continuation] => list[
+    [h, t] => (callback[h], continuation[t, callback, continuation]),
+    [] => SUCCESS
+  ],
+  forEach1[list, callback, forEach1]
+)
+
+forEach[favouriteThings, print]
+
+foldl is (
+  foldl1 is [l, acc, com, cnt] => l[
+    [h, t] => cnt[t, com[acc, h], com, cnt],
+    [] => acc
+  ],
+  [list, accumulator, combiner] => foldl1[list, accumulator, combiner, foldl1]
+)
+
+sum is [list] => foldl[list, 0, [acc, next] => acc:plus[next]]
+numbers is cons[4, cons[8, cons[15, cons[16, cons[23, cons[42, nil]]]]]]
+print[sum[numbers]]
+
+showList is [list] => (
+  body is list[
+    [h, t] => h:concat[foldl[t, '', [acc, item] => acc:concat[', ']:concat[item]]],
+    [] => ''
+  ],
+  '[':concat[body]:concat[']']
+)
+
+words is cons['one', cons['two', cons['three', cons['four', nil]]]]
+print[showList[words]]
+
+foldr is (
+  foldr1 is [list, accumulator, combiner, continuation] => list[
+    [h, t] => combiner[h, continuation[t, accumulator, combiner, continuation]],
+    [] => accumulator
+  ],
+  [list, accumulator, combiner] => foldr1[list, accumulator, combiner, foldr1]
+)
+

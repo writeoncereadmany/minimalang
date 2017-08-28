@@ -31,7 +31,7 @@ public interface Evaluator {
             contextFree((object, field) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
-                .then(Resolvers.getOrThrow(__1 -> new EvaluationException("Can only access fields of objects")))),
+                .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only access fields of objects: got a " + obj.getClass())))),
             usingContext((parameters, body, context) -> new Closure(parameters, body, context)),
             (function, arguments, cata, context) -> startWith(function)
                 .then(castTo(FunctionValue.class))

@@ -2,15 +2,12 @@ grammar Minimalang;
 
 // LEXING
 
-STRING_LITERAL : ['] ~[']* ['];
-
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 
+STRING_LITERAL : ['] ~[']* ['];
 NUMBER_LITERAL : DIGIT+ ('.' DIGIT+)?;
-
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
-
 WHITESPACE : [ \t\r\n] -> skip;
 
 // PARSING
@@ -22,9 +19,9 @@ expression
   | NUMBER_LITERAL                                                          # number
   | IDENTIFIER                                                              # variable
   | expression '[' (expression (',' expression)*)? ']'                      # call
+  | expression ':' IDENTIFIER                                               # access
   | '[' (IDENTIFIER (',' IDENTIFIER)*)? ']' '=>' expression                 # function
   | '{' (IDENTIFIER ':' expression (',' IDENTIFIER ':' expression)*)? '}'   # object
-  | expression ':' IDENTIFIER                                               # access
   | IDENTIFIER 'is' expression                                              # declaration
   | '(' expression (',' expression)* ')'                                    # sequence
   ;

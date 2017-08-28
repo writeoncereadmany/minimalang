@@ -1,6 +1,7 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
 import com.writeoncereadmany.minimalang.runtime.values.prelude.BuiltinFunction;
+import com.writeoncereadmany.minimalang.runtime.values.prelude.Extractors;
 
 import java.util.function.BiFunction;
 
@@ -25,7 +26,12 @@ public class NumberValue extends ObjectValue {
             entry("plus", binaryOperator("plus", number, (a, b) -> a + b)),
             entry("minus", binaryOperator("plus", number, (a, b) -> a - b)),
             entry("multiplyBy", binaryOperator("plus", number, (a, b) -> a * b)),
-            entry("divideBy", binaryOperator("plus", number, (a, b) -> a / b))
+            entry("divideBy", binaryOperator("plus", number, (a, b) -> a / b)),
+            entry("show", new BuiltinFunction<>(
+                "Number:show[]",
+                Extractors.noParams(),
+                __ -> new StringValue(Double.toString(number))
+            ))
         ));
 
         this.number = number;
