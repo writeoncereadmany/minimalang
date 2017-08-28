@@ -37,7 +37,7 @@ public interface Evaluator {
                 .then(castTo(FunctionValue.class))
                 .then(onSuccess(f -> f.invoke(arguments, cata)))
                 .then(onSuccess(result -> Pair.of(result, context)))
-                .then(Resolvers.getOrThrow(__ -> new EvaluationException("Can only execute functions"))),
+                .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only execute functions: got a " + obj.getClass()))),
             contextFree(expressions -> expressions.get(expressions.size() - 1))
         );
     }

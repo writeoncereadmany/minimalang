@@ -37,6 +37,7 @@ public class ListsTest {
             "Warm woollen mittens",
             "Brown paper packages tied up with strings",
             "108.0",
-            "[one, two, three, four]"));
+            "[one, two, three, four]",
+            "[8.0, 16.0, 30.0, 32.0, 46.0, 84.0]"));
     }
 }

@@ -19,7 +19,13 @@ public class StringValue extends ObjectValue {
                 new BuiltinFunction<>(
                     "String:concat[]",
                     Extractors.singleParamOfType(StringValue.class),
-                    (string) -> new StringValue(text.concat(string.text))))));
+                    (string) -> new StringValue(text.concat(string.text)))),
+            entry("show",
+                new BuiltinFunction<>(
+                    "String:show[]",
+                    Extractors.noParams(),
+                    __ -> new StringValue(text)
+                ))));
         this.text = text;
     }
 

@@ -36,7 +36,7 @@ print[sum[numbers]]
 
 showList is [list] => (
   body is list[
-    [h, t] => h:concat[foldl[t, '', [acc, item] => acc:concat[', ']:concat[item]]],
+    [h, t] => h:show[]:concat[foldl[t, '', [acc, item] => acc:concat[', ']:concat[item:show[]]]],
     [] => ''
   ],
   '[':concat[body]:concat[']']
@@ -44,6 +44,7 @@ showList is [list] => (
 
 words is cons['one', cons['two', cons['three', cons['four', nil]]]]
 print[showList[words]]
+
 
 foldr is (
   foldr1 is [list, accumulator, combiner, continuation] => list[
@@ -53,3 +54,6 @@ foldr is (
   [list, accumulator, combiner] => foldr1[list, accumulator, combiner, foldr1]
 )
 
+eagerMap is [list, mapper] => foldr[list, nil, [item, acc] => cons[mapper[item], acc]]
+doubled is eagerMap[numbers, [item] => item:multiplyBy[2]]
+print[showList[doubled]]

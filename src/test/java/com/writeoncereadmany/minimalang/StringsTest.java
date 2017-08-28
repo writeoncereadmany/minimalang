@@ -27,4 +27,20 @@ public class StringsTest {
 
         assertThat(printed, hasItems("Hello, World!"));
     }
+
+    @Test
+    public void canShowAsMuchAsWeWant() throws Exception {
+        Program program = compiler.compile("print['Hey':show[]:show[]:show[]]");
+        program.run(evaluator(), builtins);
+
+        assertThat(printed, hasItems("Hey"));
+    }
+
+    @Test
+    public void canShowNumbers() throws Exception {
+        Program program = compiler.compile("print[12.4:show[]:show[]:show[]]");
+        program.run(evaluator(), builtins);
+
+        assertThat(printed, hasItems("12.4"));
+    }
 }
