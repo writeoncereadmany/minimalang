@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static co.unruly.control.pair.Maps.entry;
-import static co.unruly.control.pair.Maps.mapOf;
 import static com.writeoncereadmany.minimalang.runtime.Evaluator.evaluator;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
