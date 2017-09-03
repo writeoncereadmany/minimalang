@@ -22,7 +22,7 @@ public class StringsTest {
 
     @Test
     public void canConcatenateStrings() throws Exception {
-        Program program = compiler.compile("print['Hello, ':concat['World!']]");
+        Program program = compiler.compile("print[\"Hello, \":concat[\"World!\"]]");
         program.run(evaluator(), builtins);
 
         assertThat(printed, hasItems("Hello, World!"));
@@ -30,7 +30,7 @@ public class StringsTest {
 
     @Test
     public void canShowAsMuchAsWeWant() throws Exception {
-        Program program = compiler.compile("print['Hey':show[]:show[]:show[]]");
+        Program program = compiler.compile("print[\"Hey\":show[]:show[]:show[]]");
         program.run(evaluator(), builtins);
 
         assertThat(printed, hasItems("Hey"));

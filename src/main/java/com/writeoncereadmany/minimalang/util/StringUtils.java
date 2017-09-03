@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public interface StringUtils {
 
-    Pattern SINGLE_QUOTED = Pattern.compile("^'(.*)'$");
+    Pattern SINGLE_QUOTED = Pattern.compile("^\"(.*)\"$");
 
     static String stripSurroundingQuotes(String string) {
         Matcher matcher = SINGLE_QUOTED.matcher(string);

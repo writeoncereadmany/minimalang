@@ -5,7 +5,7 @@ grammar Minimalang;
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 
-STRING_LITERAL : ['] ~[']* ['];
+STRING_LITERAL : ["] ~["]* ["];
 NUMBER_LITERAL : DIGIT+ ('.' DIGIT+)?;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 WHITESPACE : [ \t\r\n] -> skip;

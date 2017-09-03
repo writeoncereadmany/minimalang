@@ -4,25 +4,25 @@ false is [y, n] => n[]
 if is [condition, ifTrue, ifFalse] => condition[ifTrue, ifFalse]
 
 if[true,
-   [] => print['True dat'],
-   [] => print['Nuh uh']
+   [] => print["True dat"],
+   [] => print["Nuh uh"]
 ]
 
 if[false,
-   [] => print['The Truth Is Out There'],
-   [] => print['I Want to Believe']
+   [] => print["The Truth Is Out There"],
+   [] => print["I Want to Believe"]
 ]
 
-'and and or, but without infix, these names work better'
+"and and or, but without infix, these names work better"
 both is [first, second] => first[[] => second, [] => false]
 either is [first, second] => first[[] => true, [] => second]
 
 if[either[false, true],
-   [] => print['either was true'],
-   [] => print['neither was true']
+   [] => print["either was true"],
+   [] => print["neither was true"]
 ]
 
 if[both[true, false],
-   [] => print['both were true'],
-   [] => print['not both were true']
+   [] => print["both were true"],
+   [] => print["not both were true"]
 ]

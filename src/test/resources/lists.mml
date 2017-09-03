@@ -1,17 +1,17 @@
-'definition of list'
+"definition of list"
 nil is [onPresent, onEmpty] => onEmpty[]
 cons is [head, tail] => [onPresent, onEmpty] => onPresent[head, tail]
 
-'an example of building a list'
+"an example of building a list"
 favouriteThings is
-  cons['Raindrops on roses',
-  cons['Whiskers on kittens',
-  cons['Bright copper kettles',
-  cons['Warm woollen mittens',
-  cons['Brown paper packages tied up with strings',
+  cons["Raindrops on roses",
+  cons["Whiskers on kittens",
+  cons["Bright copper kettles",
+  cons["Warm woollen mittens",
+  cons["Brown paper packages tied up with strings",
   nil]]]]]
 
-'definition of forEach, showing the contortions required for recursion'
+"definition of forEach, showing the contortions required for recursion"
 forEach is [list, callback] => (
   forEach1 is [list, callback, continuation] => list[
     [h, t] => (callback[h], continuation[t, callback, continuation]),
@@ -36,13 +36,13 @@ print[sum[numbers]]
 
 showList is [list] => (
   body is list[
-    [h, t] => h:show[]:concat[foldl[t, '', [acc, item] => acc:concat[', ']:concat[item:show[]]]],
-    [] => ''
+    [h, t] => h:show[]:concat[foldl[t, "", [acc, item] => acc:concat[", "]:concat[item:show[]]]],
+    [] => ""
   ],
-  '[':concat[body]:concat[']']
+  "[":concat[body]:concat["]"]
 )
 
-words is cons['one', cons['two', cons['three', cons['four', nil]]]]
+words is cons["one", cons["two", cons["three", cons["four", nil]]]]
 print[showList[words]]
 
 
