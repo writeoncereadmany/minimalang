@@ -1,5 +1,6 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
+import com.writeoncereadmany.minimalang.runtime.values.prelude.BooleanFunctions;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.BuiltinFunction;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.Extractors;
 
@@ -7,6 +8,8 @@ import java.util.function.BiFunction;
 
 import static co.unruly.control.pair.Maps.entry;
 import static co.unruly.control.pair.Maps.mapOf;
+import static com.writeoncereadmany.minimalang.runtime.values.prelude.BooleanFunctions.FALSE;
+import static com.writeoncereadmany.minimalang.runtime.values.prelude.BooleanFunctions.TRUE;
 import static com.writeoncereadmany.minimalang.runtime.values.prelude.Extractors.singleParamOfType;
 import static java.lang.Double.parseDouble;
 
@@ -23,10 +26,12 @@ public class NumberValue extends ObjectValue {
 
     public NumberValue(double number) {
         super(mapOf(
-            entry("plus", binaryOperator("plus", number, (a, b) -> a + b)),
-            entry("minus", binaryOperator("plus", number, (a, b) -> a - b)),
-            entry("multiplyBy", binaryOperator("plus", number, (a, b) -> a * b)),
-            entry("divideBy", binaryOperator("plus", number, (a, b) -> a / b)),
+            entry("plus", binaryOperator("plus", number, (a, b) -> new NumberValue(a + b))),
+            entry("minus", binaryOperator("minus", number, (a, b) -> new NumberValue(a - b))),
+            entry("multiplyBy", binaryOperator("multiplyBy", number, (a, b) -> new NumberValue(a * b))),
+            entry("divideBy", binaryOperator("divideBy", number, (a, b) -> new NumberValue(a / b))),
+            entry("lessThan", binaryOperator("lessThan", number, (a, b) -> a < b ? TRUE : FALSE)),
+            entry("divisibleBy", binaryOperator("divisibleBy", number, (a, b) -> a % b == 0 ? TRUE : FALSE)),
             entry("show", new BuiltinFunction<>(
                 "Number:show[]",
                 Extractors.noParams(),
@@ -42,10 +47,10 @@ public class NumberValue extends ObjectValue {
         return Double.toString(number);
     }
 
-    private static Value binaryOperator(String name, double value, BiFunction<Double, Double, Double> operation) {
+    private static Value binaryOperator(String name, double value, BiFunction<Double, Double, Value> operation) {
         return new BuiltinFunction<>(
             String.format("Number:%s[]", name),
             singleParamOfType(NumberValue.class),
-            nv -> new NumberValue(operation.apply(value, nv.number)));
+            nv -> operation.apply(value, nv.number));
     }
 }

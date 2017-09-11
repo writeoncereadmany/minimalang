@@ -1,0 +1,23 @@
+fizzbuzz is (
+  inner is [current, max, cont] => (
+    fizzy is current:divisibleBy[3],
+    buzzy is current:divisibleBy[5],
+    fizzy[
+      [] => buzzy[
+        [] => print["fizzbuzz"],
+        [] => print["fizz"]
+      ],
+      [] => buzzy[
+        [] => print["buzz"],
+        [] => print[current]
+      ]
+    ],
+    current:lessThan[max][
+      [] => cont[current:plus[1], max, cont],
+      [] => SUCCESS
+    ]
+  ),
+  [current, max] => inner[current, max, inner]
+)
+
+fizzbuzz[1, 20]
