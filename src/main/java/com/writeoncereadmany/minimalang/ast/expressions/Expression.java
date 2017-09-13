@@ -279,6 +279,11 @@ public abstract class Expression {
         Pair<T, C> apply(X x, Y y, Z z, C context);
     }
 
+    @FunctionalInterface
+    public interface QuadFunction<A, B, C, D, R> {
+        R apply(A a, B b, C c, D d);
+    }
+
     /*************************************
      *
      * Catamorphism context-free helpers
@@ -303,5 +308,9 @@ public abstract class Expression {
 
     public static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> usingContext(PartialApplication.TriFunction<A, B, C, T> contextUsingFunction) {
         return (a, b, c) -> Pair.of(contextUsingFunction.apply(a, b, c), c);
+    }
+
+    public static <X, Y, Z, C, T> Expression.TriInterpreter<X, Y, Z, T, C> usingContext(QuadFunction<X, Y, Z, C, T> contextUsingFunction) {
+        return (x, y, z, c) -> Pair.of(contextUsingFunction.apply(x, y, z, c), c);
     }
 }

@@ -10,6 +10,10 @@ public class TypeError {
         this.reason = reason;
     }
 
+    public String reason() {
+        return reason;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

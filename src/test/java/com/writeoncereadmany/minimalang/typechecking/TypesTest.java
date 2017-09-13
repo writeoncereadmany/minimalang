@@ -1,11 +1,11 @@
 package com.writeoncereadmany.minimalang.typechecking;
 
+import com.writeoncereadmany.minimalang.typechecking.types.DataType;
+import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
 import org.junit.jupiter.api.Test;
 
 import static co.unruly.control.matchers.ResultMatchers.isFailureOf;
 import static co.unruly.control.matchers.ResultMatchers.isSuccessOf;
-import static co.unruly.control.pair.Maps.entry;
-import static co.unruly.control.pair.Maps.mapOf;
 import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertThat;
 
@@ -14,7 +14,7 @@ public class TypesTest {
     @Test
     public void aDataTypeResolvesToItself() {
         Types types = new Types();
-        DataType color = new DataType("Color");
+        DataType color = new DataType("Color", emptyMap());
 
         assertThat(types.resolve(color), isSuccessOf(color));
     }
@@ -28,7 +28,7 @@ public class TypesTest {
 
     @Test
     public void aNamedTypeResolvesToWhateverDefinedIt() {
-        DataType rhombus = new DataType("Rhombus");
+        DataType rhombus = new DataType("Rhombus", emptyMap());
         Types types = new Types().withNamedType("Diamond", rhombus);
 
         assertThat(types.resolve(new NamedType("Diamond")), isSuccessOf(rhombus));
@@ -36,7 +36,7 @@ public class TypesTest {
 
     @Test
     public void aChainOfNamedTypesResolveToUltimateNonNameType() {
-        DataType sandwich = new DataType("Sandwich");
+        DataType sandwich = new DataType("Sandwich", emptyMap());
         NamedType sub = new NamedType("Sub");
         NamedType baguette = new NamedType("Baguette");
 

@@ -1,6 +1,7 @@
 package com.writeoncereadmany.minimalang.typechecking;
 
 import co.unruly.control.result.Result;
+import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
 
 import java.util.Map;
 
