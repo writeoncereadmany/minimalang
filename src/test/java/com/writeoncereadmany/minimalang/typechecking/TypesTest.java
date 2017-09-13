@@ -13,7 +13,7 @@ public class TypesTest {
 
     @Test
     public void aDataTypeResolvesToItself() {
-        Types types = new Types(emptyMap(), emptyMap());
+        Types types = new Types();
         DataType color = new DataType("Color");
 
         assertThat(types.resolve(color), isSuccessOf(color));
@@ -21,7 +21,7 @@ public class TypesTest {
 
     @Test
     public void aNonexistentNamedTypeResolvesToFailure() {
-        Types types = new Types(emptyMap(), emptyMap());
+        Types types = new Types();
 
         assertThat(types.resolve(new NamedType("Shape")), isFailureOf(new TypeError("Type Shape not defined")));
     }
@@ -29,7 +29,7 @@ public class TypesTest {
     @Test
     public void aNamedTypeResolvesToWhateverDefinedIt() {
         DataType rhombus = new DataType("Rhombus");
-        Types types = new Types(emptyMap(), mapOf(entry("Diamond", rhombus)));
+        Types types = new Types().withNamedType("Diamond", rhombus);
 
         assertThat(types.resolve(new NamedType("Diamond")), isSuccessOf(rhombus));
     }
@@ -40,10 +40,10 @@ public class TypesTest {
         NamedType sub = new NamedType("Sub");
         NamedType baguette = new NamedType("Baguette");
 
-        Types types = new Types(emptyMap(), mapOf(
-                entry("Sub", sandwich),
-                entry("Baguette", sub),
-                entry("Panini", baguette)));
+        Types types = new Types()
+                .withNamedType("Sub", sandwich)
+                .withNamedType("Baguette", sub)
+                .withNamedType("Panini", baguette);
 
         assertThat(types.resolve(new NamedType("Panini")), isSuccessOf(sandwich));
     }

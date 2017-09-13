@@ -11,25 +11,33 @@ import static co.unruly.control.result.Match.matchValue;
 import static co.unruly.control.result.Transformers.attempt;
 import static com.writeoncereadmany.minimalang.util.MapUtils.immutablePut;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 
 public class Types {
 
     private final Map<String, Type> variables;
     private final Map<String, Type> namedTypes;
 
-    public Types(Map<String, Type> variables, Map<String, Type> namedTypes) {
+    public Types() {
+        this(emptyMap(), emptyMap());
+    }
+
+    private Types(Map<String, Type> variables, Map<String, Type> namedTypes) {
         this.variables = variables;
         this.namedTypes = namedTypes;
+    }
+
+    public Types withVariable(String name, Type type) {
+        return new Types(immutablePut(variables, name, type), namedTypes);
+    }
+
+    public Types withNamedType(String name, Type type) {
+        return new Types(variables, immutablePut(namedTypes, name, type));
     }
 
     public Result<Type, TypeError> typeOf(String name) {
         return startWith(name)
                 .then(fromMap(variables, n -> new TypeError(format("Variable %s not found", n))));
-    }
-
-    public Result<Type, TypeError> typeNamed(String name) {
-        return startWith(name)
-                .then(fromMap(namedTypes, n -> new TypeError(format("Type %s not defined", n))));
     }
 
     public Result<Type, TypeError> resolve(Type type) {
@@ -38,7 +46,8 @@ public class Types {
         ).otherwise(Result::success);
     }
 
-    public Types withVariable(String name, Type type) {
-        return new Types(immutablePut(variables, name, type), namedTypes);
+    private Result<Type, TypeError> typeNamed(String name) {
+        return startWith(name)
+                .then(fromMap(namedTypes, n -> new TypeError(format("Type %s not defined", n))));
     }
 }
