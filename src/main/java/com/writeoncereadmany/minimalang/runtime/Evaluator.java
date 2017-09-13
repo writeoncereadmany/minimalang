@@ -1,14 +1,9 @@
 package com.writeoncereadmany.minimalang.runtime;
 
-import co.unruly.control.PartialApplication.TriFunction;
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Resolvers;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.values.*;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.result.Introducers.castTo;

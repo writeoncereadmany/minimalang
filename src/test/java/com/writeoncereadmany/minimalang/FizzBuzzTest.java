@@ -12,7 +12,6 @@ import java.util.List;
 
 import static com.writeoncereadmany.minimalang.runtime.Evaluator.evaluator;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 public class FizzBuzzTest {

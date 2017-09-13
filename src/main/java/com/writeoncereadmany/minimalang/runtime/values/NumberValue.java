@@ -1,6 +1,5 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
-import com.writeoncereadmany.minimalang.runtime.values.prelude.BooleanFunctions;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.BuiltinFunction;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.Extractors;
 
