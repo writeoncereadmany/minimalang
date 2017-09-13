@@ -61,4 +61,20 @@ public class TypeCheckerTest {
 
         assertThat(result.left, isFailureOf(new TypeError("Cannot assign DataType{name='String'} to DataType{name='Number'}")));
     }
+
+    @Test
+    public void canConcatenateTwoStrings() {
+        Program program = compiler.compile("\"Hello, \":concat[\"World!\"]");
+        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(string));
+    }
+
+    @Test
+    public void canConcatenateThreeStrings() {
+        Program program = compiler.compile("\"Yabba, \":concat[\"Dabba, \"]:concat[\"Doo!\"]");
+        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(string));
+    }
 }
