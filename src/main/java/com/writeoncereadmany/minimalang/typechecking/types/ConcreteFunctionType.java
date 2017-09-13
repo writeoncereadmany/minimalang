@@ -32,7 +32,7 @@ public class ConcreteFunctionType implements FunctionType {
         }
 
         List<TypeError> typeErrors = HigherOrderFunctions
-                .zip(argumentTypes.stream(), parameterTypes.stream())
+                .zip(parameterTypes.stream(), argumentTypes.stream())
                 .map(pair -> pair.left.assign(pair.right, types))
                 .flatMap(Optionals::stream)
                 .collect(Collectors.toList());

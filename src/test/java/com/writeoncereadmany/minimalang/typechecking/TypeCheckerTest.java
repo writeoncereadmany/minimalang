@@ -59,6 +59,6 @@ public class TypeCheckerTest {
         Program program = compiler.compile("2:plus[\"Hello, World!\"]");
         Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
 
-        assertThat(result.left, isFailureOf(new TypeError("Cannot assign DataType{name='Number'} to DataType{name='String'}")));
+        assertThat(result.left, isFailureOf(new TypeError("Cannot assign DataType{name='String'} to DataType{name='Number'}")));
     }
 }

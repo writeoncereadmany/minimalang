@@ -53,8 +53,8 @@ public class DataType implements InterfaceType {
     @Override
     public Optional<TypeError> assign(Type other, Types types) {
         return types.resolve(other).either(
-            success -> this.equals(success) ? Optional.empty() : Optional.of(new TypeError(format("Cannot assign %s to %s", success, this))),
-            failure -> Optional.of(failure)
+            otherType -> this.equals(otherType) ? Optional.empty() : Optional.of(new TypeError(format("Cannot assign %s to %s", otherType, this))),
+            typeError -> Optional.of(typeError)
         );
     }
 }
