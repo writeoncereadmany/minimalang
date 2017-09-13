@@ -71,17 +71,15 @@ public interface TypeChecker {
     }
 
     static Expression.Interpreter<Map<String, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
-        return contextFree(fields -> {
-            Pair<List<Pair<String, Type>>, List<Pair<String, List<TypeError>>>> fieldsWhichExist = fields.entrySet()
+        return contextFree(fields ->
+            anyFailures(fields
+                .entrySet()
                 .stream()
                 .map(TypeChecker::liftResults)
-                .collect(split());
-
-            return anyFailures(fieldsWhichExist)
-                .then(onSuccess(validFields -> new ObjectType(validFields.stream().collect(toMap()))))
-                .then(using(TypeOf.<Type>forSuccesses()))
-                .then(onFailure(invalidFields -> invalidFields.stream().map(Pair::right).flatMap(List::stream).collect(toList())));
-        });
+                .collect(split()))
+            .then(onSuccess(validFields -> new ObjectType(validFields.stream().collect(toMap()))))
+            .then(using(TypeOf.<Type>forSuccesses()))
+            .then(onFailure(invalidFields -> invalidFields.stream().map(Pair::right).flatMap(List::stream).collect(toList()))));
     }
 
     static Expression.BiInterpreter<Result<Type, List<TypeError>>, String, Result<Type, List<TypeError>>, Types> access() {
