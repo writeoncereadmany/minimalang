@@ -28,7 +28,10 @@ public class DataType implements InterfaceType {
     @Override
     public Result<Type, List<TypeError>> getField(String name) {
         return startWith(name)
-                .then(fromMap(fields, field -> singletonList(new TypeError(format("Type %s has no such field %s", this.name, field)))));
+                .then(fromMap(
+                    fields,
+                    field -> singletonList(new TypeError(format("Type %s has no such field %s", this.name, field)))
+                ));
     }
 
     @Override

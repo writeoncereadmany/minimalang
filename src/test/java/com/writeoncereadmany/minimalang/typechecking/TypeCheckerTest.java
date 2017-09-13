@@ -79,4 +79,24 @@ public class TypeCheckerTest {
 
         assertThat(result.left, isSuccessOf(string));
     }
+
+    @Test
+    public void canAddFieldsOfAnObjectWhichAreNumbers() {
+        Program program = compiler.compile(String.join("\n",
+                "point is { x : 2, y : 3 }",
+                "point:x:plus[point:y]"));
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(number));
+    }
+
+    @Test
+    public void cannotAddFieldsOfAnObjectWhichAreStrings() {
+        Program program = compiler.compile(String.join("\n",
+                "point is { x : \"Hello\", y : \"World\" }",
+                "point:x:plus[point:y]"));
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isFailureOf(asList(new TypeError("Type String has no such field plus"))));
+    }
 }
