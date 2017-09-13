@@ -2,6 +2,7 @@ package com.writeoncereadmany.minimalang.typechecking;
 
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Result;
+import co.unruly.control.result.TypeOf;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.typechecking.types.FunctionType;
@@ -13,14 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 import static co.unruly.control.Lists.successesOrFailures;
-import static co.unruly.control.pair.Maps.entry;
 import static co.unruly.control.pair.Maps.toMap;
+import static co.unruly.control.pair.Pairs.anyFailures;
 import static co.unruly.control.result.Introducers.ifType;
 import static co.unruly.control.result.Match.matchValue;
 import static co.unruly.control.result.Resolvers.split;
 import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
 import static co.unruly.control.result.Transformers.attempt;
+import static co.unruly.control.result.Transformers.onFailure;
+import static co.unruly.control.result.Transformers.onSuccess;
+import static co.unruly.control.result.TypeOf.using;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
 import static java.lang.String.format;
@@ -29,7 +33,11 @@ import static java.util.stream.Collectors.toList;
 
 public interface TypeChecker {
 
-    static Catamorphism<Result<Type, List<TypeError>>, Types> typeChecker(final NamedType numberType, final NamedType stringType, final NamedType successType) {
+    static Catamorphism<Result<Type, List<TypeError>>, Types> typeChecker(
+        final NamedType numberType,
+        final NamedType stringType,
+        final NamedType successType)
+    {
         return new Catamorphism<>(
             stringLiteral(stringType),
             numberLiteral(numberType),
@@ -66,15 +74,13 @@ public interface TypeChecker {
         return contextFree(fields -> {
             Pair<List<Pair<String, Type>>, List<Pair<String, List<TypeError>>>> fieldsWhichExist = fields.entrySet()
                 .stream()
-                .<Result<Pair<String, Type>, Pair<String, List<TypeError>>>>map(entry -> entry.getValue().either(
-                    type -> success(entry(entry.getKey(), type)),
-                    typeErrors -> failure(entry(entry.getKey(), typeErrors))
-                )).collect(split());
-            if(fieldsWhichExist.right.isEmpty()) {
-                return success(new ObjectType(fieldsWhichExist.left.stream().collect(toMap())));
-            } else {
-                return failure(fieldsWhichExist.right.stream().map(Pair::right).flatMap(List::stream).collect(toList()));
-            }
+                .map(TypeChecker::liftResults)
+                .collect(split());
+
+            return anyFailures(fieldsWhichExist)
+                .then(onSuccess(validFields -> new ObjectType(validFields.stream().collect(toMap()))))
+                .then(using(TypeOf.<Type>forSuccesses()))
+                .then(onFailure(invalidFields -> invalidFields.stream().map(Pair::right).flatMap(List::stream).collect(toList())));
         });
     }
 
@@ -104,5 +110,12 @@ public interface TypeChecker {
 
     static Expression.Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
         return contextFree(expressions -> null);
+    }
+
+    static <K, S, F> Result<Pair<K, S>, Pair<K, F>> liftResults(Map.Entry<K, Result<S, F>> entry) {
+        final K key = entry.getKey();
+        return entry.getValue()
+            .then(onSuccess(value -> Pair.of(key, value)))
+            .then(onFailure(error -> Pair.of(key, error)));
     }
 }
