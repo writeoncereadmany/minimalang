@@ -13,6 +13,8 @@ import java.util.function.Function;
 import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.result.Introducers.castTo;
 import static co.unruly.control.result.Transformers.onSuccess;
+import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
+import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
 import static com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessValue.SUCCESS;
 
 /**
@@ -40,22 +42,6 @@ public interface Evaluator {
                 .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only execute functions: got a " + obj.getClass()))),
             contextFree(expressions -> expressions.get(expressions.size() - 1))
         );
-    }
-
-    static <E, T, C> Expression.Interpreter<E, T, C> contextFree(Function<E, T> contextFreeFunction) {
-        return (e, c) -> Pair.of(contextFreeFunction.apply(e), c);
-    }
-
-    static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> contextFree(BiFunction<A, B, T> contextFreeFunction) {
-        return (a, b, c) -> Pair.of(contextFreeFunction.apply(a, b), c);
-    }
-
-    static <E, T, C> Expression.Interpreter<E, T, C> usingContext(BiFunction<E, C, T> contextUsingFunction) {
-        return (e, c) -> Pair.of(contextUsingFunction.apply(e, c), c);
-    }
-
-    static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> usingContext(TriFunction<A, B, C, T> contextUsingFunction) {
-        return (a, b, c) -> Pair.of(contextUsingFunction.apply(a, b, c), c);
     }
 
 }

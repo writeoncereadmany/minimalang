@@ -5,7 +5,6 @@ import com.writeoncereadmany.minimalang.runtime.Environment;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.PrintFunction;
 import com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessValue;
 import com.writeoncereadmany.minimalang.support.Loader;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import static org.junit.Assert.assertThat;
 
 public class FizzBuzzTest {
 
-    public Compiler compiler = new Compiler();
+    public MinimaCompiler compiler = new MinimaCompiler();
 
     private final List<String> printed = new ArrayList<>();
     private final Environment builtins = new Environment()

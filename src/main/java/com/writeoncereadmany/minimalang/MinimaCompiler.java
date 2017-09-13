@@ -11,7 +11,7 @@ import static org.antlr.v4.runtime.CharStreams.fromString;
 /**
  * Created by tomj on 21/07/2017.
  */
-public class Compiler {
+public class MinimaCompiler {
 
     public Program compile(String program) {
         MinimalangLexer lexer = new MinimalangLexer(fromString(program));

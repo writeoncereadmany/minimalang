@@ -13,7 +13,7 @@ public class Repl {
 
     public static void main(String... args) {
         final Scanner scanner = new Scanner(System.in);
-        final Compiler compiler = new Compiler();
+        final MinimaCompiler compiler = new MinimaCompiler();
         Environment environment = new Environment().with("print", new PrintFunction(System.out::println));
 
         while(true) {

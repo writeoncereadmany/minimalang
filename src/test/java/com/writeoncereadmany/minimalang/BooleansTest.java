@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 
 public class BooleansTest {
 
-    public Compiler compiler = new Compiler();
+    public MinimaCompiler compiler = new MinimaCompiler();
 
     private final List<String> printed = new ArrayList<>();
     private final Environment builtins = new Environment()
