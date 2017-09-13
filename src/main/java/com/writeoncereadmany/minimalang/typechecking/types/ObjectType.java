@@ -5,8 +5,8 @@ import com.writeoncereadmany.minimalang.typechecking.Type;
 import com.writeoncereadmany.minimalang.typechecking.TypeError;
 import com.writeoncereadmany.minimalang.typechecking.Types;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class ObjectType implements InterfaceType {
 
@@ -17,12 +17,12 @@ public class ObjectType implements InterfaceType {
     }
 
     @Override
-    public Result<Type, TypeError> getField(String name) {
+    public Result<Type, List<TypeError>> getField(String name) {
         return Result.success(fields.get(name));
     }
 
     @Override
-    public Optional<TypeError> assign(Type other, Types types) {
+    public List<TypeError> assign(Type other, Types types) {
         return null;
     }
 }

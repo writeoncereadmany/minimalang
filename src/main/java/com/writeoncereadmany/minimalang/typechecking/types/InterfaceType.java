@@ -4,7 +4,9 @@ import co.unruly.control.result.Result;
 import com.writeoncereadmany.minimalang.typechecking.Type;
 import com.writeoncereadmany.minimalang.typechecking.TypeError;
 
+import java.util.List;
+
 public interface InterfaceType extends Type {
 
-    Result<Type, TypeError> getField(String name);
+    Result<Type, List<TypeError>> getField(String name);
 }

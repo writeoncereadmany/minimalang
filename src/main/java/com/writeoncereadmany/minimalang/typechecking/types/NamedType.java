@@ -4,10 +4,11 @@ import com.writeoncereadmany.minimalang.typechecking.Type;
 import com.writeoncereadmany.minimalang.typechecking.TypeError;
 import com.writeoncereadmany.minimalang.typechecking.Types;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-import static co.unruly.control.result.Resolvers.ifFailed;
+import static co.unruly.control.result.Resolvers.collapse;
 import static co.unruly.control.result.Transformers.onSuccess;
 
 public class NamedType implements Type {
@@ -39,13 +40,13 @@ public class NamedType implements Type {
     }
 
     @Override
-    public Optional<TypeError> assign(Type other, Types types) {
+    public List<TypeError> assign(Type other, Types types) {
         // this is a little dangerous until we use debruijn indices - at least, if we allow introduction of new names
         if(this.equals(other)) {
-            return Optional.empty();
+            return Collections.emptyList();
         }
         return types.resolve(this)
                 .then(onSuccess(resolvedType -> resolvedType.assign(other, types)))
-                .then(ifFailed(Optional::of));
+                .then(collapse());
     }
 }

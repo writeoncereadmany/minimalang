@@ -10,6 +10,8 @@ import com.writeoncereadmany.minimalang.typechecking.types.DataType;
 import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static co.unruly.control.matchers.ResultMatchers.isFailureOf;
 import static co.unruly.control.matchers.ResultMatchers.isSuccessOf;
 import static co.unruly.control.pair.Maps.entry;
@@ -29,7 +31,7 @@ public class TypeCheckerTest {
 
     private final DataType stringImpl = new DataType("String", mapOf(entry("concat", new ConcreteFunctionType(asList(string), string))));
 
-    private final Expression.Catamorphism<Result<Type, TypeError>, Types> cata = TypeChecker.typeChecker(
+    private final Expression.Catamorphism<Result<Type, List<TypeError>>, Types> cata = TypeChecker.typeChecker(
             number,
             string,
             successType);
@@ -41,7 +43,7 @@ public class TypeCheckerTest {
     @Test
     public void canAddTwoNumbers() {
         Program program = compiler.compile("2:plus[4]");
-        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
         assertThat(result.left, isSuccessOf(number));
     }
@@ -49,7 +51,7 @@ public class TypeCheckerTest {
     @Test
     public void canAddThreeNumbers() {
         Program program = compiler.compile("2:plus[4]:plus[6]");
-        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
         assertThat(result.left, isSuccessOf(number));
     }
@@ -57,15 +59,15 @@ public class TypeCheckerTest {
     @Test
     public void cannotAddStringToNumber() {
         Program program = compiler.compile("2:plus[\"Hello, World!\"]");
-        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
-        assertThat(result.left, isFailureOf(new TypeError("Cannot assign DataType{name='String'} to DataType{name='Number'}")));
+        assertThat(result.left, isFailureOf(asList(new TypeError("Cannot assign DataType{name='String'} to DataType{name='Number'}"))));
     }
 
     @Test
     public void canConcatenateTwoStrings() {
         Program program = compiler.compile("\"Hello, \":concat[\"World!\"]");
-        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
         assertThat(result.left, isSuccessOf(string));
     }
@@ -73,7 +75,7 @@ public class TypeCheckerTest {
     @Test
     public void canConcatenateThreeStrings() {
         Program program = compiler.compile("\"Yabba, \":concat[\"Dabba, \"]:concat[\"Doo!\"]");
-        Pair<Result<Type, TypeError>, Types> result = program.run(cata, types);
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
         assertThat(result.left, isSuccessOf(string));
     }

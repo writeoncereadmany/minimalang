@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static co.unruly.control.matchers.ResultMatchers.isFailureOf;
 import static co.unruly.control.matchers.ResultMatchers.isSuccessOf;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertThat;
 
@@ -23,7 +24,7 @@ public class TypesTest {
     public void aNonexistentNamedTypeResolvesToFailure() {
         Types types = new Types();
 
-        assertThat(types.resolve(new NamedType("Shape")), isFailureOf(new TypeError("Type Shape not defined")));
+        assertThat(types.resolve(new NamedType("Shape")), isFailureOf(asList(new TypeError("Type Shape not defined"))));
     }
 
     @Test

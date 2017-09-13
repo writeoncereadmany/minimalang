@@ -1,8 +1,8 @@
 package com.writeoncereadmany.minimalang.typechecking;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface Type {
 
-    Optional<TypeError> assign(Type other, Types types);
+    List<TypeError> assign(Type other, Types types);
 }

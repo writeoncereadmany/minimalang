@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface FunctionType extends Type {
 
-    Result<Type, TypeError> returnType(List<Type> args, Types types);
+    Result<Type, List<TypeError>> returnType(List<Type> args, Types types);
 }

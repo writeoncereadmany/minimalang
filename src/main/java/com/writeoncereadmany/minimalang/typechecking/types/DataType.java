@@ -5,13 +5,15 @@ import com.writeoncereadmany.minimalang.typechecking.Type;
 import com.writeoncereadmany.minimalang.typechecking.TypeError;
 import com.writeoncereadmany.minimalang.typechecking.Types;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.result.Introducers.fromMap;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class DataType implements InterfaceType {
 
@@ -24,9 +26,9 @@ public class DataType implements InterfaceType {
     }
 
     @Override
-    public Result<Type, TypeError> getField(String name) {
+    public Result<Type, List<TypeError>> getField(String name) {
         return startWith(name)
-                .then(fromMap(fields, field -> new TypeError(format("Type %s has no such field %s", this.name, field))));
+                .then(fromMap(fields, field -> singletonList(new TypeError(format("Type %s has no such field %s", this.name, field)))));
     }
 
     @Override
@@ -51,10 +53,10 @@ public class DataType implements InterfaceType {
     }
 
     @Override
-    public Optional<TypeError> assign(Type other, Types types) {
+    public List<TypeError> assign(Type other, Types types) {
         return types.resolve(other).either(
-            otherType -> this.equals(otherType) ? Optional.empty() : Optional.of(new TypeError(format("Cannot assign %s to %s", otherType, this))),
-            typeError -> Optional.of(typeError)
+            otherType -> this.equals(otherType) ? emptyList() : singletonList(new TypeError(format("Cannot assign %s to %s", otherType, this))),
+            typeErrors -> typeErrors
         );
     }
 }

@@ -3,6 +3,7 @@ package com.writeoncereadmany.minimalang.typechecking;
 import co.unruly.control.result.Result;
 import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
 
+import java.util.List;
 import java.util.Map;
 
 import static co.unruly.control.ApplicableWrapper.startWith;
@@ -13,6 +14,7 @@ import static co.unruly.control.result.Transformers.attempt;
 import static com.writeoncereadmany.minimalang.util.MapUtils.immutablePut;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 
 public class Types {
 
@@ -36,19 +38,19 @@ public class Types {
         return new Types(variables, immutablePut(namedTypes, name, type));
     }
 
-    public Result<Type, TypeError> typeOf(String name) {
+    public Result<Type, List<TypeError>> typeOf(String name) {
         return startWith(name)
-                .then(fromMap(variables, n -> new TypeError(format("Variable %s not found", n))));
+                .then(fromMap(variables, n -> singletonList(new TypeError(format("Variable %s not found", n)))));
     }
 
-    public Result<Type, TypeError> resolve(Type type) {
+    public Result<Type, List<TypeError>> resolve(Type type) {
         return matchValue(type,
             ifType(NamedType.class, nt -> typeNamed(nt.name).then(attempt(this::resolve)))
         ).otherwise(Result::success);
     }
 
-    private Result<Type, TypeError> typeNamed(String name) {
+    private Result<Type, List<TypeError>> typeNamed(String name) {
         return startWith(name)
-                .then(fromMap(namedTypes, n -> new TypeError(format("Type %s not defined", n))));
+                .then(fromMap(namedTypes, n -> singletonList(new TypeError(format("Type %s not defined", n)))));
     }
 }
