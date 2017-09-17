@@ -9,8 +9,12 @@ import com.writeoncereadmany.minimalang.typechecking.Types;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static co.unruly.control.result.Introducers.ifType;
+import static co.unruly.control.result.Match.matchValue;
+import static co.unruly.control.result.Resolvers.collapse;
 import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
+import static co.unruly.control.result.Transformers.onSuccess;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
@@ -45,6 +49,18 @@ public class ConcreteFunctionType implements FunctionType {
 
     @Override
     public List<TypeError> assign(Type other, Types types) {
-        return null;
+        return types.resolve(other).either(
+            otherType -> matchValue(otherType,
+                    ifType(FunctionType.class, fun -> canBeAssigned(fun, types)))
+                .otherwise(obj -> singletonList(new TypeError("Cannot assign an object type to a function type"))),
+            typeErrors -> typeErrors
+        );
+    }
+
+    private List<TypeError> canBeAssigned(FunctionType other, Types types) {
+        return other
+            .returnType(this.parameterTypes, types)
+            .then(onSuccess(retType -> retType.assign(this.returnType, types)))
+            .then(collapse());
     }
 }

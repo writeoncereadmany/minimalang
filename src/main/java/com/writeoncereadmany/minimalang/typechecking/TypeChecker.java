@@ -21,9 +21,7 @@ import static co.unruly.control.result.Match.matchValue;
 import static co.unruly.control.result.Resolvers.split;
 import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
-import static co.unruly.control.result.Transformers.attempt;
-import static co.unruly.control.result.Transformers.onFailure;
-import static co.unruly.control.result.Transformers.onSuccess;
+import static co.unruly.control.result.Transformers.*;
 import static co.unruly.control.result.TypeOf.using;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
@@ -91,6 +89,9 @@ public interface TypeChecker {
         );
     }
 
+    /**
+     * TODO
+     */
     static Expression.BiInterpreter<List<String>, Expression, Result<Type, List<TypeError>>, Types> functionExpression() {
         return contextFree((params, body) -> null);
     }
@@ -106,6 +107,9 @@ public interface TypeChecker {
         );
     }
 
+    /**
+     * TODO
+     */
     static Expression.Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
         return contextFree(expressions -> null);
     }

@@ -8,6 +8,7 @@ import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.typechecking.types.ConcreteFunctionType;
 import com.writeoncereadmany.minimalang.typechecking.types.DataType;
 import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
+import com.writeoncereadmany.minimalang.typechecking.types.ObjectType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import static co.unruly.control.matchers.ResultMatchers.isSuccessOf;
 import static co.unruly.control.pair.Maps.entry;
 import static co.unruly.control.pair.Maps.mapOf;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertThat;
 
 public class TypeCheckerTest {
@@ -26,10 +28,20 @@ public class TypeCheckerTest {
     private final NamedType number = new NamedType("Number");
     private final NamedType string = new NamedType("String");
     private final NamedType successType = new NamedType("Success");
+    private final NamedType showable = new NamedType("Showable");
 
-    private final DataType numberImpl = new DataType("Number", mapOf(entry("plus", new ConcreteFunctionType(asList(number), number))));
+    private final Type numberImpl = new DataType("Number", mapOf(
+        entry("plus", new ConcreteFunctionType(asList(number), number)),
+        entry("show", new ConcreteFunctionType(emptyList(), string))
+    ));
 
-    private final DataType stringImpl = new DataType("String", mapOf(entry("concat", new ConcreteFunctionType(asList(string), string))));
+    private final Type stringImpl = new DataType("String", mapOf(
+        entry("concat", new ConcreteFunctionType(asList(string), string)),
+        entry("show", new ConcreteFunctionType(emptyList(), string))
+    ));
+
+    private final Type showableImpl = new ObjectType(mapOf(entry("show", new ConcreteFunctionType(emptyList(), string))));
+    private final Type printType = new ConcreteFunctionType(asList(showable), successType);
 
     private final Expression.Catamorphism<Result<Type, List<TypeError>>, Types> cata = TypeChecker.typeChecker(
             number,
@@ -37,8 +49,10 @@ public class TypeCheckerTest {
             successType);
 
     private final Types types = new Types()
+            .withVariable("print", printType)
             .withNamedType("Number", numberImpl)
-            .withNamedType("String", stringImpl);
+            .withNamedType("String", stringImpl)
+            .withNamedType("Showable", showableImpl);
 
     @Test
     public void canAddTwoNumbers() {
@@ -61,7 +75,7 @@ public class TypeCheckerTest {
         Program program = compiler.compile("2:plus[\"Hello, World!\"]");
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
-        assertThat(result.left, isFailureOf(asList(new TypeError("Cannot assign DataType{name='String'} to DataType{name='Number'}"))));
+        assertThat(result.left, isFailureOf(singleError("Cannot assign DataType{name='String'} to DataType{name='Number'}")));
     }
 
     @Test
@@ -97,6 +111,42 @@ public class TypeCheckerTest {
                 "point:x:plus[point:y]"));
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
 
-        assertThat(result.left, isFailureOf(asList(new TypeError("Type String has no such field plus"))));
+        assertThat(result.left, isFailureOf(singleError("Type String has no such field plus")));
+    }
+
+    @Test
+    public void supportsPolymorphicFunctionTakingString() {
+        Program program = compiler.compile("print[\"Hello, World!\"]");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(successType));
+    }
+
+    @Test
+    public void supportsPolymorphicFunctionTakingNumber() {
+        Program program = compiler.compile("print[12]");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(successType));
+    }
+
+    @Test
+    public void rejectsPolymorphicFunctionTakingObjectWithoutShow() {
+        Program program = compiler.compile("print[{ x: 12, y: 14 }]");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isFailureOf(singleError("Object has no such field show")));
+    }
+
+    @Test
+    public void rejectsPolymorphicFunctionTakingObjectWithNonFunctionShow() {
+        Program program = compiler.compile("print[{ show: \"Cheese!\"}]");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isFailureOf(singleError("Cannot assign an object type to a function type")));
+    }
+
+    public List<TypeError> singleError(String reason) {
+        return asList(new TypeError(reason));
     }
 }
