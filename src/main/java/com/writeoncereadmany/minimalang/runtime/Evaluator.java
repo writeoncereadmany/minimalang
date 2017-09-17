@@ -11,6 +11,7 @@ import static co.unruly.control.result.Transformers.onSuccess;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
 import static com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessValue.SUCCESS;
+import static java.util.function.Function.identity;
 
 /**
  * Created by tomj on 22/08/2017.
@@ -35,7 +36,7 @@ public interface Evaluator {
                 .then(onSuccess(f -> f.invoke(arguments, cata)))
                 .then(onSuccess(result -> Pair.of(result, context)))
                 .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only execute functions: got a " + obj.getClass()))),
-            contextFree(expressions -> expressions.get(expressions.size() - 1))
+            contextFree(identity())
         );
     }
 
