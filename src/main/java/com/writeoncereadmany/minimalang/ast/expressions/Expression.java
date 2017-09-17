@@ -4,6 +4,7 @@ import co.unruly.control.PartialApplication;
 import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -206,11 +207,14 @@ public abstract class Expression {
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
             Expression firstExpression = expressions.get(0);
+            List<T> results = new ArrayList<>();
             Pair<T, C> current = firstExpression.fold(cata, context);
+            results.add(current.left);
             for(Expression next : expressions.subList(1, expressions.size())) {
                 current = next.fold(cata, current.right);
+                results.add(current.left);
             }
-            return cata.onSequence.apply(current.left, current.right);
+            return cata.onSequence.apply(results, current.right);
         }
     }
 
@@ -224,7 +228,7 @@ public abstract class Expression {
         public final TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall;
         public final Interpreter<String, T, C> onStringLiteral;
         public final Interpreter<String, T, C> onVariable;
-        public final Interpreter<T, T, C> onSequence;
+        public final Interpreter<List<T>, T, C> onSequence;
         public final BiInterpreter<String, T, T, C> onDeclaration;
         public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
@@ -240,7 +244,7 @@ public abstract class Expression {
             BiInterpreter<T, String, T, C> onAccess,
             BiInterpreter<List<String>, Expression, T, C> onFunction,
             TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
-            Interpreter<T, T, C> onSequence
+            Interpreter<List<T>, T, C> onSequence
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
