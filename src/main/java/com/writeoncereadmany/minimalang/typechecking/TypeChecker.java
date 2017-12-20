@@ -2,15 +2,13 @@ package com.writeoncereadmany.minimalang.typechecking;
 
 import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
+import co.unruly.control.pair.Pairs;
 import co.unruly.control.result.Result;
 import co.unruly.control.result.TypeOf;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
-import com.writeoncereadmany.minimalang.typechecking.types.FunctionType;
-import com.writeoncereadmany.minimalang.typechecking.types.InterfaceType;
-import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
-import com.writeoncereadmany.minimalang.typechecking.types.ObjectType;
+import com.writeoncereadmany.minimalang.typechecking.types.*;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +29,7 @@ import static co.unruly.control.result.TypeOf.using;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -108,11 +107,24 @@ public interface TypeChecker {
         );
     }
 
-    /**
-     * TODO
-     */
     static Expression.BiInterpreter<List<Introduction>, Expression, Result<Type, List<TypeError>>, Types> functionExpression() {
-        return contextFree((params, body) -> null);
+        return usingContext((params, body, types) -> {
+            Pair<List<Pair<Introduction, Type>>, List<List<TypeError>>> paramTypes = params
+                .stream()
+                .map(onlyType(types))
+                .collect(split());
+
+            return Pairs.anyFailures(paramTypes)
+                .then(onSuccess(paramsWithTypes -> {
+                    // need to evaluate the type of the body here, which requires access to the cata. pause!
+                    Type returnType = null;
+                    return new ConcreteFunctionType(
+                        paramsWithTypes.stream().map(param -> param.right).collect(toList()),
+                        returnType);
+                }))
+                .then(using(TypeOf.<Type>forSuccesses()))
+                .then(onFailure(errors -> errors.stream().flatMap(List::stream).collect(toList())));
+        });
     }
 
     static Expression.TriInterpreter<Result<Type, List<TypeError>>, List<Result<Type, List<TypeError>>>, Catamorphism<Result<Type, List<TypeError>>, Types>, Result<Type, List<TypeError>>, Types> functionCall() {
@@ -152,5 +164,22 @@ public interface TypeChecker {
                 .collect(toList());
             return errors.isEmpty() ? success(type) : failure(errors);
         };
+    }
+
+    /**
+     * this is probably temporary, while I bootstrap function definitions: for now we'll only
+     * allow the case where each param is annotated with a single, extant type. in time we can
+     * introduce generics and subtyping logics for the zero-annotation and multi-annotation cases.
+     */
+    static Function<Introduction, Result<Pair<Introduction, Type>, List<TypeError>>> onlyType(Types types) {
+        return introduction -> startWith(introduction.annotations)
+            .then(getSingleElement())
+            .then(onFailure(__ -> asList(new TypeError(format("Argument %s must have a single type annotation", introduction.name)))))
+            .then(attempt(types::named))
+            .then(onSuccess(type -> Pair.of(introduction, type)));
+    }
+
+    static <T> Function<List<T>, Result<T, List<T>>> getSingleElement() {
+        return list -> list.size() == 1 ? success(list.get(0)) : failure(list);
     }
 }
