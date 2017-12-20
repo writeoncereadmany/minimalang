@@ -32,15 +32,15 @@ public abstract class Expression {
         return new NumberLiteral(number);
     }
 
-    public static Expression declaration(String name, Expression expression) {
-        return new Declaration(name, expression);
+    public static Expression declaration(Introduction variable, Expression expression) {
+        return new Declaration(variable, expression);
     }
 
     public static Expression variable(String name) {
         return new Variable(name);
     }
 
-    public static Expression objectLiteral(List<Pair<String, Expression>> fields) {
+    public static Expression objectLiteral(List<Pair<Introduction, Expression>> fields) {
         return new ObjectLiteral(fields);
     }
 
@@ -48,7 +48,7 @@ public abstract class Expression {
         return new Access(object, field);
     }
 
-    public static Expression function(List<String> arguments, Expression body) {
+    public static Expression function(List<Introduction> arguments, Expression body) {
         return new FunctionLiteral(arguments, body);
     }
 
@@ -112,10 +112,10 @@ public abstract class Expression {
     }
 
     private static class Declaration extends Expression {
-        private final String name;
+        private final Introduction name;
         private final Expression expression;
 
-        private Declaration(String name, Expression expression) {
+        private Declaration(Introduction name, Expression expression) {
             this.name = name;
             this.expression = expression;
         }
@@ -128,15 +128,15 @@ public abstract class Expression {
     }
 
     private static class ObjectLiteral extends Expression {
-        private final List<Pair<String, Expression>> values;
+        private final List<Pair<Introduction, Expression>> values;
 
-        private ObjectLiteral(List<Pair<String, Expression>> values) {
+        private ObjectLiteral(List<Pair<Introduction, Expression>> values) {
             this.values = values;
         }
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            Map<String, T> collect = values
+            Map<Introduction, T> collect = values
                 .stream()
                 .map(field -> field.then(onRight(exp -> exp.fold(cata, context))))
                 .map(field -> field.then(onRight(Pair::left)))
@@ -163,10 +163,10 @@ public abstract class Expression {
 
     private static class FunctionLiteral extends Expression {
 
-        private final List<String> parameters;
+        private final List<Introduction> parameters;
         private final Expression body;
 
-        private FunctionLiteral(List<String> parameters, Expression body) {
+        private FunctionLiteral(List<Introduction> parameters, Expression body) {
             this.parameters = parameters;
             this.body = body;
         }
@@ -229,20 +229,20 @@ public abstract class Expression {
         public final Interpreter<String, T, C> onStringLiteral;
         public final Interpreter<String, T, C> onVariable;
         public final Interpreter<List<T>, T, C> onSequence;
-        public final BiInterpreter<String, T, T, C> onDeclaration;
-        public final Interpreter<Map<String, T>, T, C> onObjectLiteral;
+        public final BiInterpreter<Introduction, T, T, C> onDeclaration;
+        public final Interpreter<Map<Introduction, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
-        public final BiInterpreter<List<String>, Expression, T, C> onFunction;
+        public final BiInterpreter<List<Introduction>, Expression, T, C> onFunction;
         public final Interpreter<String, T, C> onNumberLiteral;
 
         public Catamorphism(
             Interpreter<String, T, C> onStringLiteral,
             Interpreter<String, T, C> onNumberLiteral,
-            BiInterpreter<String, T, T, C> onDeclaration,
+            BiInterpreter<Introduction, T, T, C> onDeclaration,
             Interpreter<String, T, C> onVariable,
-            Interpreter<Map<String, T>, T, C> onObjectLiteral,
+            Interpreter<Map<Introduction, T>, T, C> onObjectLiteral,
             BiInterpreter<T, String, T, C> onAccess,
-            BiInterpreter<List<String>, Expression, T, C> onFunction,
+            BiInterpreter<List<Introduction>, Expression, T, C> onFunction,
             TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
             Interpreter<List<T>, T, C> onSequence
         ) {

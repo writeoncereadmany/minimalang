@@ -2,6 +2,7 @@ package com.writeoncereadmany.minimalang.ast;
 
 import co.unruly.control.HigherOrderFunctions;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
+import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
 import com.writeoncereadmany.minimalang.generated.MinimalangParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -29,13 +30,13 @@ public interface ProgramBuilder {
                 numberLiteral(num.NUMBER_LITERAL().getText())),
             ifType(MinimalangParser.DeclarationContext.class, dec ->
                 declaration(
-                    dec.IDENTIFIER().getText(),
+                    buildIntroduction(dec.introduction()),
                     buildExpression(dec.expression()))),
             ifType(MinimalangParser.VariableContext.class, var ->
                 variable(var.IDENTIFIER().getText())),
             ifType(MinimalangParser.ObjectContext.class, obj ->
                 objectLiteral(HigherOrderFunctions.zip(
-                    obj.IDENTIFIER().stream().map(ParseTree::getText),
+                    obj.introduction().stream().map(ProgramBuilder::buildIntroduction),
                     obj.expression().stream().map(exp -> buildExpression(exp))).collect(toList()))),
             ifType(MinimalangParser.AccessContext.class, acc ->
                 access(
@@ -43,7 +44,7 @@ public interface ProgramBuilder {
                     acc.IDENTIFIER().getText())),
             ifType(MinimalangParser.FunctionContext.class, fun ->
                 function(
-                    fun.IDENTIFIER().stream().map(ParseTree::getText).collect(toList()),
+                    fun.introduction().stream().map(ProgramBuilder::buildIntroduction).collect(toList()),
                     buildExpression(fun.expression())
                 )),
             ifType(MinimalangParser.CallContext.class, call ->
@@ -62,5 +63,9 @@ public interface ProgramBuilder {
         ).otherwise(exp -> {
             throw new RuntimeException("Failed to find an implementation for " + exp.getClass());
         });
+    }
+
+    static Introduction buildIntroduction(MinimalangParser.IntroductionContext ctx) {
+        return new Introduction(ctx.ANNOTATION().stream().map(ParseTree::getText).collect(toList()), ctx.IDENTIFIER().getText());
     }
 }

@@ -1,10 +1,12 @@
 package com.writeoncereadmany.minimalang.typechecking;
 
+import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Result;
 import co.unruly.control.result.TypeOf;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
+import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
 import com.writeoncereadmany.minimalang.typechecking.types.FunctionType;
 import com.writeoncereadmany.minimalang.typechecking.types.InterfaceType;
 import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
@@ -14,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static co.unruly.control.Lists.successesOrFailures;
-import static co.unruly.control.pair.Maps.toMap;
 import static co.unruly.control.pair.Pairs.anyFailures;
+import static co.unruly.control.pair.Pairs.onLeft;
 import static co.unruly.control.result.Introducers.ifType;
 import static co.unruly.control.result.Match.matchValue;
 import static co.unruly.control.result.Resolvers.split;
@@ -57,9 +59,9 @@ public interface TypeChecker {
         return contextFree(stringLiteral -> success(numberType));
     }
 
-    static Expression.BiInterpreter<String, Result<Type, List<TypeError>>, Result<Type, List<TypeError>>, Types> variableDeclaration(NamedType successType) {
+    static Expression.BiInterpreter<Introduction, Result<Type, List<TypeError>>, Result<Type, List<TypeError>>, Types> variableDeclaration(NamedType successType) {
         return (variable, type, context) -> type.either(
-            s -> Pair.of(success(successType), context.withVariable(variable, s)),
+            s -> Pair.of(success(successType), context.withVariable(variable.name, s)),
             f -> Pair.of(failure(f), context)
         );
     }
@@ -68,16 +70,22 @@ public interface TypeChecker {
         return usingContext((variable, context) -> context.typeOf(variable));
     }
 
-    static Expression.Interpreter<Map<String, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
-        return contextFree(fields ->
-            anyFailures(fields
-                .entrySet()
-                .stream()
-                .map(TypeChecker::liftResults)
-                .collect(split()))
-            .then(onSuccess(validFields -> new ObjectType(validFields.stream().collect(toMap()))))
-            .then(using(TypeOf.<Type>forSuccesses()))
-            .then(onFailure(invalidFields -> invalidFields.stream().map(Pair::right).flatMap(List::stream).collect(toList()))));
+    static Expression.Interpreter<Map<Introduction, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
+        return contextFree(fields -> anyFailures(fields
+            .entrySet()
+            .stream()
+            .map(TypeChecker::liftResults)
+            .collect(split())
+        ).then(onSuccess(validFields -> new ObjectType(validFields
+            .stream()
+            .map(onLeft(i -> i.name))
+            .collect(Maps.toMap())))
+        ).then(using(TypeOf.<Type>forSuccesses())
+        ).then(onFailure(invalidFields -> invalidFields
+            .stream()
+            .map(Pair::right)
+            .flatMap(List::stream)
+            .collect(toList()))));
     }
 
     static Expression.BiInterpreter<Result<Type, List<TypeError>>, String, Result<Type, List<TypeError>>, Types> access() {
@@ -92,7 +100,7 @@ public interface TypeChecker {
     /**
      * TODO
      */
-    static Expression.BiInterpreter<List<String>, Expression, Result<Type, List<TypeError>>, Types> functionExpression() {
+    static Expression.BiInterpreter<List<Introduction>, Expression, Result<Type, List<TypeError>>, Types> functionExpression() {
         return contextFree((params, body) -> null);
     }
 
