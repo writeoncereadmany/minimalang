@@ -9,6 +9,7 @@ import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
 import com.writeoncereadmany.minimalang.typechecking.types.*;
+import com.writeoncereadmany.minimalang.util.ListUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -20,14 +21,14 @@ import static co.unruly.control.pair.Pairs.anyFailures;
 import static co.unruly.control.pair.Pairs.onLeft;
 import static co.unruly.control.result.Introducers.ifType;
 import static co.unruly.control.result.Match.matchValue;
-import static co.unruly.control.result.Resolvers.collapse;
-import static co.unruly.control.result.Resolvers.split;
+import static co.unruly.control.result.Resolvers.*;
 import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
 import static co.unruly.control.result.Transformers.*;
 import static co.unruly.control.result.TypeOf.using;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
 import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
+import static com.writeoncereadmany.minimalang.util.ListUtils.flatten;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -146,12 +147,16 @@ public interface TypeChecker {
                     matchValue(t,
                         ifType(FunctionType.class, f -> f.returnType(arguments, types))
                     ).otherwise(obj -> failure(singletonList(new TypeError(format("Type %s is not callable", obj))))))),
-                failures -> failure(failures.stream().flatMap(List::stream).collect(toList())))
+                failures -> failure(flatten(failures)))
         );
     }
 
     static Expression.Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
-        return contextFree(expressions -> null);
+        return contextFree(expressions -> expressions
+            .stream()
+            .collect(allSucceeded())
+            .then(onFailure(ListUtils::flatten))
+            .then(onSuccess(types -> types.get(types.size() - 1))));
     }
 
     static <K, S, F> Result<Pair<K, S>, Pair<K, F>> liftResults(Map.Entry<K, Result<S, F>> entry) {

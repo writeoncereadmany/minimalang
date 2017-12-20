@@ -55,6 +55,7 @@ public class TypeCheckerTest {
 
     private final Types types = new Types()
             .withVariable("print", printType)
+            .withVariable("Success", successImpl)
             .withNamedType("Number", numberImpl)
             .withNamedType("String", stringImpl)
             .withNamedType("Success", successImpl)
@@ -156,7 +157,7 @@ public class TypeCheckerTest {
     }
 
     @Test
-    public void cannotDefineFunctionsWhWhereBodyReliesOnMethodsNotPresent() {
+    public void cannotDefineFunctionsWhereBodyReliesOnMethodsNotPresent() {
         Program program = compiler.compile("add is [@String a, @String b] => a:plus[b]");
 
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
@@ -222,6 +223,54 @@ public class TypeCheckerTest {
 
         assertThat(result.left, isFailureOf(singleError(
             "Cannot assign DataType{name='Number'} to DataType{name='String'}")));
+    }
+
+    @Test
+    public void typeOfASingletonGroupIsTheOnlyValueContainedWithin() {
+        Program program = compiler.compile("(3)");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(number));
+    }
+
+    @Test
+    public void typeOfAGroupIsTheLastValueContainedWithin() {
+        Program program = compiler.compile("(Success, \"Hello\", 5)");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(number));
+    }
+
+    @Test
+    public void aGroupWithTheLastExpressionBeingATypeErrorIsATypeError() {
+        Program program = compiler.compile("(5:concat[4])");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(singleError("Type Number has no such field concat")));
+    }
+
+    @Test
+    public void aGroupWithNonTerminalExpressionBeingATypeErrorIsATypeError() {
+        Program program = compiler.compile("(@String x is 4, 2)");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(singleError("Cannot assign DataType{name='Number'} to DataType{name='String'}")));
+    }
+
+    @Test
+    public void cascadesTypeKnowledgeThroughGroup() {
+        Program program = compiler.compile("(x is 4, x)");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(number));
+    }
+
+    @Test
+    public void nonTerminalTypesInGroupMustBeSuccess() {
+        Program program = compiler.compile("(x is 4, x)");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(number));
     }
 
     @Test

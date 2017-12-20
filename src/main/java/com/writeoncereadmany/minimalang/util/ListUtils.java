@@ -6,7 +6,13 @@ import co.unruly.control.result.Result;
 import java.util.List;
 import java.util.function.Function;
 
+import static java.util.stream.Collectors.toList;
+
 public interface ListUtils {
+
+    static <T> List<T> flatten(List<List<T>> listOfLists) {
+        return listOfLists.stream().flatMap(List::stream).collect(toList());
+    }
 
     static <T> Function<List<T>, Result<T, List<T>>> extractSingleValue() {
         return items -> {
