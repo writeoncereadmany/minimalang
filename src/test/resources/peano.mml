@@ -1,12 +1,12 @@
-zero is [s, z, acc] => z[acc]
-succ is [pred] => [s, z, acc] => pred[s, z, s[acc]]
+zero is [s, z, acc] => z[acc],
+succ is [pred] => [s, z, acc] => pred[s, z, s[acc]],
 
-three is succ[succ[succ[zero]]]
+three is succ[succ[succ[zero]]],
 
 bangs is three[
   [acc] => acc:concat["!"],
   [acc] => acc,
   ""
-]
+],
 
 print[bangs]

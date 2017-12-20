@@ -1,26 +1,26 @@
-"definition of list"
-nil is [onPresent, onEmpty] => onEmpty[]
-cons is [head, tail] => [onPresent, onEmpty] => onPresent[head, tail]
+"definition of list",
+nil is [onPresent, onEmpty] => onEmpty[],
+cons is [head, tail] => [onPresent, onEmpty] => onPresent[head, tail],
 
-"an example of building a list"
+"an example of building a list",
 favouriteThings is
   cons["Raindrops on roses",
   cons["Whiskers on kittens",
   cons["Bright copper kettles",
   cons["Warm woollen mittens",
   cons["Brown paper packages tied up with strings",
-  nil]]]]]
+  nil]]]]],
 
-"definition of forEach, showing the contortions required for recursion"
+"definition of forEach, showing the contortions required for recursion",
 forEach is [list, callback] => (
   forEach1 is [list, callback, continuation] => list[
     [h, t] => (callback[h], continuation[t, callback, continuation]),
     [] => SUCCESS
   ],
   forEach1[list, callback, forEach1]
-)
+),
 
-forEach[favouriteThings, print]
+forEach[favouriteThings, print],
 
 foldl is (
   foldl1 is [l, acc, com, cnt] => l[
@@ -28,11 +28,11 @@ foldl is (
     [] => acc
   ],
   [list, accumulator, combiner] => foldl1[list, accumulator, combiner, foldl1]
-)
+),
 
-sum is [list] => foldl[list, 0, [acc, next] => acc:plus[next]]
-numbers is cons[4, cons[8, cons[15, cons[16, cons[23, cons[42, nil]]]]]]
-print[sum[numbers]]
+sum is [list] => foldl[list, 0, [acc, next] => acc:plus[next]],
+numbers is cons[4, cons[8, cons[15, cons[16, cons[23, cons[42, nil]]]]]],
+print[sum[numbers]],
 
 showList is [list] => (
   body is list[
@@ -40,10 +40,10 @@ showList is [list] => (
     [] => ""
   ],
   "[":concat[body]:concat["]"]
-)
+),
 
-words is cons["one", cons["two", cons["three", cons["four", nil]]]]
-print[showList[words]]
+words is cons["one", cons["two", cons["three", cons["four", nil]]]],
+print[showList[words]],
 
 
 foldr is (
@@ -52,8 +52,8 @@ foldr is (
     [] => accumulator
   ],
   [list, accumulator, combiner] => foldr1[list, accumulator, combiner, foldr1]
-)
+),
 
-eagerMap is [list, mapper] => foldr[list, nil, [item, acc] => cons[mapper[item], acc]]
-doubled is eagerMap[numbers, [item] => item:multiplyBy[2]]
+eagerMap is [list, mapper] => foldr[list, nil, [item, acc] => cons[mapper[item], acc]],
+doubled is eagerMap[numbers, [item] => item:multiplyBy[2]],
 print[showList[doubled]]

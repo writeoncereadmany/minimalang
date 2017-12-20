@@ -140,7 +140,7 @@ public class TypeCheckerTest {
     @Test
     public void canAddFieldsOfAnObjectWhichAreNumbers() {
         Program program = compiler.compile(String.join("\n",
-                "point is { x : 2, y : 3 }",
+                "point is { x : 2, y : 3 },",
                 "point:x:plus[point:y]"));
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
 
@@ -168,7 +168,7 @@ public class TypeCheckerTest {
     @Test
     public void canInvokeCustomFunctionWithArgsOfCorrectType() {
         Program program = compiler.compile(String.join("\n",
-            "add is [@Number a, @Number b] => a:plus[b]",
+            "add is [@Number a, @Number b] => a:plus[b],",
             "add[2, 3]"));
 
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
@@ -192,7 +192,7 @@ public class TypeCheckerTest {
     @Test
     public void cannotInvokeCustomFunctionWithArgsOfIncorrectType() {
         Program program = compiler.compile(String.join("\n",
-            "add is [@Number a, @Number b] => a:plus[b]",
+            "add is [@Number a, @Number b] => a:plus[b],",
             "add[\"Hello\", 3]"));
 
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
@@ -205,7 +205,7 @@ public class TypeCheckerTest {
     @Test
     public void canAssignInferredTypeBackToVariableOnInvocation() {
         Program program = compiler.compile(String.join("\n",
-            "add is [@Number a, @Number b] => a:plus[b]",
+            "add is [@Number a, @Number b] => a:plus[b],",
             "@Number sum is add[2, 3]"));
 
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
@@ -216,7 +216,7 @@ public class TypeCheckerTest {
     @Test
     public void cannotAssignInferredTypeBackToVariableOfIncorrectType() {
         Program program = compiler.compile(String.join("\n",
-            "add is [@Number a, @Number b] => a:plus[b]",
+            "add is [@Number a, @Number b] => a:plus[b],",
             "@String sum is add[2, 3]"));
 
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
@@ -276,7 +276,7 @@ public class TypeCheckerTest {
     @Test
     public void cannotAddFieldsOfAnObjectWhichAreStrings() {
         Program program = compiler.compile(String.join("\n",
-                "point is { x : \"Hello\", y : \"World\" }",
+                "point is { x : \"Hello\", y : \"World\" },",
                 "point:x:plus[point:y]"));
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
 

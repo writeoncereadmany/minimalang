@@ -13,7 +13,7 @@ WHITESPACE : [ \t\r\n] -> skip;
 
 // PARSING
 
-program : expression+ EOF;
+program : (expression (',' expression)*)? EOF;
 
 expression
   : STRING_LITERAL                                                              # string

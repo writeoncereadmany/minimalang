@@ -46,8 +46,8 @@ public class HelloWorldTest {
     @Test
     public void canPrintMultipleThings() {
         Program program = compiler.compile(String.join("\n",
-                "print[\"Seven syllables to start\"]",
-                "print[\"Then another five\"]",
+                "print[\"Seven syllables to start\"],",
+                "print[\"Then another five\"],",
                 "print[\"And seven more to finish\"]"));
 
         Value endResult = program.run(evaluator(), builtins).left;
@@ -72,8 +72,8 @@ public class HelloWorldTest {
     @Test
     public void canCreateAndAccessObjects() {
         Program program = compiler.compile(String.join("\n",
-                "point is { x: \"Hello\", y: \"World\" }",
-                "print[point:x]",
+                "point is { x: \"Hello\", y: \"World\" },",
+                "print[point:x],",
                 "print[point:y]"
             ));
 
@@ -86,7 +86,7 @@ public class HelloWorldTest {
     @Test
     public void canCreateCustomFunctions() {
         Program program = compiler.compile(String.join("\n",
-            "first is [x, y] => x",
+            "first is [x, y] => x,",
             "print[first[\"Hello\", \"World\"]]"
         ));
 
@@ -99,8 +99,8 @@ public class HelloWorldTest {
     @Test
     public void canStoreThingsInVariables() {
         Program program = compiler.compile(String.join("\n",
-                "message is \"Hello, World!\"",
-                "print[message]",
+                "message is \"Hello, World!\",",
+                "print[message],",
                 "print[message]"
         ));
 

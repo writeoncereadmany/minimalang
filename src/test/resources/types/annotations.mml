@@ -1,19 +1,19 @@
-"un-annotated variable declaration"
-name is "Tom"
+"un-annotated variable declaration",
+name is "Tom",
 
-"annotated variable declaration"
-@String cat is "Tinks"
+"annotated variable declaration",
+@String cat is "Tinks",
 
-"double-annotated variable declaration"
-@Immutable @String hat is "Bowler"
+"double-annotated variable declaration",
+@Immutable @String hat is "Bowler",
 
-"annotated object"
+"annotated object",
 { firstName : "Tom",
   @String lastName : "Johnson",
   @Positive @Number age : 38
-}
+},
 
-"annotated function"
-printName is [first, @String last, @Positive @Number age] => print[name]
+"annotated function",
+printName is [first, @String last, @Positive @Number age] => print[name],
 
 printName["Tom", "Johnson", 38]

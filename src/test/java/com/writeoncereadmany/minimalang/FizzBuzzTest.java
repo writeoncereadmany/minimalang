@@ -24,7 +24,7 @@ public class FizzBuzzTest {
         .with("SUCCESS", SuccessValue.SUCCESS);
 
     @Test
-    public void canIterateOverAList() throws Exception {
+    public void fizzbuzz() throws Exception {
         String sourceCode = Loader.loadSource("fizzbuzz.mml");
 
         Program program = compiler.compile(sourceCode);
