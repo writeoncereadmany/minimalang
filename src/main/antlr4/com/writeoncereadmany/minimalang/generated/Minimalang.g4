@@ -5,6 +5,7 @@ grammar Minimalang;
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 
+TYPE : 'type';
 STRING_LITERAL : ["] ~["]* ["];
 NUMBER_LITERAL : DIGIT+ ('.' DIGIT+)?;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
@@ -24,7 +25,13 @@ expression
   | '[' (introduction (',' introduction)*)? ']' '=>' expression                 # function
   | '{' (introduction ':' expression (',' introduction ':' expression)*)? '}'   # object
   | introduction 'is' expression                                                # declaration
+  | TYPE IDENTIFIER 'is' type                                                   # typedefinition
   | '(' expression (',' expression)* ')'                                        # sequence
   ;
 
 introduction : (ANNOTATION)* IDENTIFIER;
+
+type
+  : IDENTIFIER                              # type_alias
+  | '[' (type (',' type)*)? ']' '=>' type   # function_type
+  ;

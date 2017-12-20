@@ -218,6 +218,21 @@ public abstract class Expression {
         }
     }
 
+    private static class TypeDeclaration extends Expression {
+        private final String name;
+        private final TypeDefinition type;
+
+        private TypeDeclaration(String name, TypeDefinition type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        @Override
+        public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
+            return cata.onTypeDeclaration.apply(name, type, context);
+        }
+    }
+
     /*************************************
      *
      * Catamorphism holder
@@ -234,6 +249,7 @@ public abstract class Expression {
         public final BiInterpreter<T, String, T, C> onAccess;
         public final TriInterpreter<List<Introduction>, Expression, Catamorphism<T, C>, T, C> onFunction;
         public final Interpreter<String, T, C> onNumberLiteral;
+        public final BiInterpreter<String, TypeDefinition, T, C> onTypeDeclaration;
 
         public Catamorphism(
             Interpreter<String, T, C> onStringLiteral,
@@ -244,7 +260,8 @@ public abstract class Expression {
             BiInterpreter<T, String, T, C> onAccess,
             TriInterpreter<List<Introduction>, Expression, Catamorphism<T, C>, T, C> onFunction,
             TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
-            Interpreter<List<T>, T, C> onSequence
+            Interpreter<List<T>, T, C> onSequence,
+            BiInterpreter<String, TypeDefinition, T, C> onTypeDeclaration
         ) {
             this.onCall = onCall;
             this.onStringLiteral = onStringLiteral;
@@ -255,6 +272,7 @@ public abstract class Expression {
             this.onAccess = onAccess;
             this.onFunction = onFunction;
             this.onNumberLiteral = onNumberLiteral;
+            this.onTypeDeclaration = onTypeDeclaration;
         }
     }
 

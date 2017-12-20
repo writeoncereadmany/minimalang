@@ -59,7 +59,9 @@ public interface ProgramBuilder {
                 sequence(seq.expression()
                     .stream()
                     .map(ProgramBuilder::buildExpression)
-                    .collect(toList())))
+                    .collect(toList()))),
+            ifType(MinimalangParser.TypedefinitionContext.class, type ->
+                null)
         ).otherwise(exp -> {
             throw new RuntimeException("Failed to find an implementation for " + exp.getClass());
         });

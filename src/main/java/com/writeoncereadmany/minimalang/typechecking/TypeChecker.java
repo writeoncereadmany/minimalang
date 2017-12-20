@@ -8,6 +8,7 @@ import co.unruly.control.result.TypeOf;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
+import com.writeoncereadmany.minimalang.ast.expressions.TypeDefinition;
 import com.writeoncereadmany.minimalang.typechecking.types.*;
 import com.writeoncereadmany.minimalang.util.ListUtils;
 
@@ -50,8 +51,13 @@ public interface TypeChecker {
             access(),
             functionExpression(),
             functionCall(),
-            group()
+            group(),
+            typeDefinition()
         );
+    }
+
+    static Expression.BiInterpreter<String, TypeDefinition, Result<Type, List<TypeError>>, Types> typeDefinition() {
+        return null;
     }
 
     static Expression.Interpreter<String, Result<Type, List<TypeError>>, Types> stringLiteral(NamedType stringType) {
