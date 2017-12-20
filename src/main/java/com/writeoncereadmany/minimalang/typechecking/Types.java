@@ -43,6 +43,10 @@ public class Types {
                 .then(fromMap(variables, n -> singletonList(new TypeError(format("Variable %s not found", n)))));
     }
 
+    public Result<Type, List<TypeError>> named(String name) {
+        return startWith(name)
+            .then(fromMap(namedTypes, n -> singletonList(new TypeError(format("Type %s not found", n)))));
+    }
     public Result<Type, List<TypeError>> resolve(Type type) {
         return matchValue(type,
             ifType(NamedType.class, nt -> typeNamed(nt.name).then(attempt(this::resolve)))

@@ -66,6 +66,12 @@ public interface ProgramBuilder {
     }
 
     static Introduction buildIntroduction(MinimalangParser.IntroductionContext ctx) {
-        return new Introduction(ctx.ANNOTATION().stream().map(ParseTree::getText).collect(toList()), ctx.IDENTIFIER().getText());
+        return new Introduction(
+            ctx.ANNOTATION()
+                .stream()
+                .map(ParseTree::getText)
+                .map(x -> x.substring(1))
+                .collect(toList()),
+            ctx.IDENTIFIER().getText());
     }
 }

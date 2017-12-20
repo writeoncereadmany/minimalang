@@ -14,12 +14,15 @@ import com.writeoncereadmany.minimalang.typechecking.types.ObjectType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
+import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.Lists.successesOrFailures;
 import static co.unruly.control.pair.Pairs.anyFailures;
 import static co.unruly.control.pair.Pairs.onLeft;
 import static co.unruly.control.result.Introducers.ifType;
 import static co.unruly.control.result.Match.matchValue;
+import static co.unruly.control.result.Resolvers.collapse;
 import static co.unruly.control.result.Resolvers.split;
 import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
@@ -61,7 +64,11 @@ public interface TypeChecker {
 
     static Expression.BiInterpreter<Introduction, Result<Type, List<TypeError>>, Result<Type, List<TypeError>>, Types> variableDeclaration(NamedType successType) {
         return (variable, type, context) -> type.either(
-            s -> Pair.of(success(successType), context.withVariable(variable.name, s)),
+            s -> startWith(s)
+                .then(checkAgainstAnnotations(variable, context))
+                .either(
+                    succ -> Pair.of(success(successType), context.withVariable(variable.name, succ)),
+                    fail -> Pair.of(failure(fail), context)),
             f -> Pair.of(failure(f), context)
         );
     }
@@ -128,4 +135,19 @@ public interface TypeChecker {
             .then(onSuccess(value -> Pair.of(key, value)))
             .then(onFailure(error -> Pair.of(key, error)));
     }
+
+    static Function<Type, Result<Type, List<TypeError>>> checkAgainstAnnotations(Introduction introduction, Types types) {
+        return type -> {
+            List<TypeError> errors = introduction
+                .annotations
+                .stream()
+                .map(types::named)
+                .map(onSuccess(t -> t.assign(type, types)))
+                .map(collapse())
+                .flatMap(List::stream)
+                .collect(toList());
+            return errors.isEmpty() ? success(type) : failure(errors);
+        };
+    }
+
 }

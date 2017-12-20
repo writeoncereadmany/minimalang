@@ -55,6 +55,22 @@ public class TypeCheckerTest {
             .withNamedType("Showable", showableImpl);
 
     @Test
+    public void canAssignStringToStringVariable() {
+        Program program = compiler.compile("@String name is \"Tom\"");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isSuccessOf(successType));
+    }
+
+    @Test
+    public void cannotAssignNumberToStringVariable() {
+        Program program = compiler.compile("@String name is 42");
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
+
+        assertThat(result.left, isFailureOf(singleError("Cannot assign DataType{name='Number'} to DataType{name='String'}")));
+    }
+
+    @Test
     public void canAddTwoNumbers() {
         Program program = compiler.compile("2:plus[4]");
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(cata, types);
