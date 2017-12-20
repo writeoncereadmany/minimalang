@@ -78,10 +78,14 @@ public interface TypeChecker {
     }
 
     static Expression.Interpreter<Map<Introduction, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
-        return contextFree(fields -> anyFailures(fields
+        return usingContext((fields, types) -> anyFailures(fields
             .entrySet()
             .stream()
             .map(TypeChecker::liftResults)
+            .map(attempt(pair -> startWith(pair.right)
+                .then(checkAgainstAnnotations(pair.left, types))
+                .then(onSuccess(s -> Pair.of(pair.left, s)))
+                .then(onFailure(f -> Pair.of(pair.left, f)))))
             .collect(split())
         ).then(onSuccess(validFields -> new ObjectType(validFields
             .stream()
@@ -149,5 +153,4 @@ public interface TypeChecker {
             return errors.isEmpty() ? success(type) : failure(errors);
         };
     }
-
 }
