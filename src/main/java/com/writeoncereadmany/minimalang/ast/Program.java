@@ -2,7 +2,6 @@ package com.writeoncereadmany.minimalang.ast;
 
 
 import co.unruly.control.pair.Pair;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression;
 
 import java.util.List;
 

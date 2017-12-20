@@ -2,14 +2,14 @@ package com.writeoncereadmany.minimalang.runtime;
 
 import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Resolvers;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
+import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.values.*;
 
 import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.result.Introducers.castTo;
 import static co.unruly.control.result.Transformers.onSuccess;
-import static com.writeoncereadmany.minimalang.ast.expressions.Expression.contextFree;
-import static com.writeoncereadmany.minimalang.ast.expressions.Expression.usingContext;
+import static com.writeoncereadmany.minimalang.ast.Expression.contextFree;
+import static com.writeoncereadmany.minimalang.ast.Expression.usingContext;
 import static com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessValue.SUCCESS;
 import static com.writeoncereadmany.minimalang.util.MapUtils.mapKeys;
 import static java.util.stream.Collectors.toList;

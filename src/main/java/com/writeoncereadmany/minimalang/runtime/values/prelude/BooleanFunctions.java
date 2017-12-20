@@ -1,6 +1,6 @@
 package com.writeoncereadmany.minimalang.runtime.values.prelude;
 
-import com.writeoncereadmany.minimalang.ast.expressions.Expression;
+import com.writeoncereadmany.minimalang.ast.Expression;
 import com.writeoncereadmany.minimalang.runtime.Environment;
 import com.writeoncereadmany.minimalang.runtime.values.FunctionValue;
 import com.writeoncereadmany.minimalang.runtime.values.Value;

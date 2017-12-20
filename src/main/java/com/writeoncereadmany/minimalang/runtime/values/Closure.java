@@ -1,8 +1,8 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
 import co.unruly.control.pair.Pair;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
+import com.writeoncereadmany.minimalang.ast.Expression;
+import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.Environment;
 import com.writeoncereadmany.minimalang.runtime.EvaluationException;
 

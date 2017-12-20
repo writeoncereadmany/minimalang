@@ -1,4 +1,4 @@
-package com.writeoncereadmany.minimalang.ast.expressions;
+package com.writeoncereadmany.minimalang.ast;
 
 import co.unruly.control.PartialApplication;
 import co.unruly.control.pair.Maps;

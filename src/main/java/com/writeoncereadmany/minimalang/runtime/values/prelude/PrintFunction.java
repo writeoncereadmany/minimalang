@@ -1,7 +1,7 @@
 package com.writeoncereadmany.minimalang.runtime.values.prelude;
 
 import co.unruly.control.result.Resolvers;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
+import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.Environment;
 import com.writeoncereadmany.minimalang.runtime.EvaluationException;
 import com.writeoncereadmany.minimalang.runtime.values.FunctionValue;

@@ -1,9 +1,6 @@
 package com.writeoncereadmany.minimalang.ast;
 
 import co.unruly.control.pair.Maps;
-import com.writeoncereadmany.minimalang.ast.expressions.Expression;
-import com.writeoncereadmany.minimalang.ast.expressions.Introduction;
-import com.writeoncereadmany.minimalang.ast.expressions.TypeDefinition;
 import com.writeoncereadmany.minimalang.generated.MinimalangParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -13,8 +10,8 @@ import java.util.stream.Stream;
 import static co.unruly.control.HigherOrderFunctions.zip;
 import static co.unruly.control.result.Introducers.ifType;
 import static co.unruly.control.result.Match.matchValue;
-import static com.writeoncereadmany.minimalang.ast.expressions.Expression.*;
-import static com.writeoncereadmany.minimalang.ast.expressions.TypeDefinition.*;
+import static com.writeoncereadmany.minimalang.ast.Expression.*;
+import static com.writeoncereadmany.minimalang.ast.TypeDefinition.*;
 import static com.writeoncereadmany.minimalang.util.ListUtils.allButLast;
 import static com.writeoncereadmany.minimalang.util.ListUtils.last;
 import static com.writeoncereadmany.minimalang.util.StringUtils.stripSurroundingQuotes;

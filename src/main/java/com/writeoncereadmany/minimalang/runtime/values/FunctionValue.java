@@ -1,6 +1,6 @@
 package com.writeoncereadmany.minimalang.runtime.values;
 
-import com.writeoncereadmany.minimalang.ast.expressions.Expression.Catamorphism;
+import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.Environment;
 
 import java.util.List;
