@@ -128,12 +128,11 @@ public class TypeCheckerTest {
 
     @Test
     public void cannotDefineObjectsWithAnnotatedTypesWhenTypesDoNotMatch() {
-        Program program = compiler.compile("point is { @String x : 2, @Success y : 3 }");
+        Program program = compiler.compile("point is { @String x : 2, @Number y : 3 }");
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
 
         assertThat(result.left, isFailureOf(errors(
-            "Cannot assign DataType{name='Number'} to DataType{name='String'}",
-            "Cannot assign DataType{name='Number'} to DataType{name='Success'}"
+            "Cannot assign DataType{name='Number'} to DataType{name='String'}"
         )));
     }
 
@@ -145,6 +144,84 @@ public class TypeCheckerTest {
         Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
 
         assertThat(result.left, isSuccessOf(number));
+    }
+
+    @Test
+    public void canDefineFunctionsWhereBodyReliesOnMethodsPresent() {
+        Program program = compiler.compile("add is [@Number a, @Number b] => a:plus[b]");
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(successType));
+    }
+
+    @Test
+    public void cannotDefineFunctionsWhWhereBodyReliesOnMethodsNotPresent() {
+        Program program = compiler.compile("add is [@String a, @String b] => a:plus[b]");
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(singleError("Type String has no such field plus")));
+    }
+
+    @Test
+    public void canInvokeCustomFunctionWithArgsOfCorrectType() {
+        Program program = compiler.compile(String.join("\n",
+            "add is [@Number a, @Number b] => a:plus[b]",
+            "add[2, 3]"));
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(number));
+    }
+
+    // This is temporary, until I (hopefully soon!) implement generic functions
+    @Test
+    public void cannotDefineFunctionWithoutTypeAnnotations() {
+        Program program = compiler.compile("add is [a, b] => a:plus[b]");
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(errors(
+            "Argument a must have a single type annotation",
+            "Argument b must have a single type annotation"
+        )));
+    }
+
+    @Test
+    public void cannotInvokeCustomFunctionWithArgsOfIncorrectType() {
+        Program program = compiler.compile(String.join("\n",
+            "add is [@Number a, @Number b] => a:plus[b]",
+            "add[\"Hello\", 3]"));
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(singleError(
+            "Cannot assign DataType{name='String'} to DataType{name='Number'}"
+        )));
+    }
+
+    @Test
+    public void canAssignInferredTypeBackToVariableOnInvocation() {
+        Program program = compiler.compile(String.join("\n",
+            "add is [@Number a, @Number b] => a:plus[b]",
+            "@Number sum is add[2, 3]"));
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isSuccessOf(successType));
+    }
+
+    @Test
+    public void cannotAssignInferredTypeBackToVariableOfIncorrectType() {
+        Program program = compiler.compile(String.join("\n",
+            "add is [@Number a, @Number b] => a:plus[b]",
+            "@String sum is add[2, 3]"));
+
+        Pair<Result<Type, List<TypeError>>, Types> result = program.run(typeChecker, types);
+
+        assertThat(result.left, isFailureOf(singleError(
+            "Cannot assign DataType{name='Number'} to DataType{name='String'}")));
     }
 
     @Test

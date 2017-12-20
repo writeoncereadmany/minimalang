@@ -120,15 +120,22 @@ public interface TypeChecker {
                 .collect(split());
 
             return Pairs.anyFailures(paramTypes)
-                .then(onSuccess(paramsWithTypes -> {
-                    // need to evaluate the type of the body here, which requires access to the cata. pause!
-                    Type returnType = null;
-                    return new ConcreteFunctionType(
-                        paramsWithTypes.stream().map(param -> param.right).collect(toList()),
-                        returnType);
+                .then(onFailure(errors -> errors.stream().flatMap(List::stream).collect(toList())))
+                .then(attempt(paramsWithTypes -> {
+                    Types bodyContext = paramsWithTypes
+                        .stream()
+                        .reduce(types, (t, p) -> t.withVariable(p.left.name, p.right), (a, b) -> a);
+                    return body
+                        .fold(cata, bodyContext)
+                        .left
+                        .then(onSuccess(returnType ->
+                            new ConcreteFunctionType(
+                                paramsWithTypes.stream().map(param -> param.right).collect(toList()),
+                                returnType))
+                    );
+
                 }))
-                .then(using(TypeOf.<Type>forSuccesses()))
-                .then(onFailure(errors -> errors.stream().flatMap(List::stream).collect(toList())));
+                .then(using(TypeOf.<Type>forSuccesses()));
         });
     }
 
@@ -143,9 +150,6 @@ public interface TypeChecker {
         );
     }
 
-    /**
-     * TODO
-     */
     static Expression.Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
         return contextFree(expressions -> null);
     }
