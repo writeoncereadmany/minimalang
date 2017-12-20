@@ -173,7 +173,7 @@ public abstract class Expression {
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return cata.onFunction.apply(parameters, body, context);
+            return cata.onFunction.apply(parameters, body, cata, context);
         }
     }
 
@@ -232,7 +232,7 @@ public abstract class Expression {
         public final BiInterpreter<Introduction, T, T, C> onDeclaration;
         public final Interpreter<Map<Introduction, T>, T, C> onObjectLiteral;
         public final BiInterpreter<T, String, T, C> onAccess;
-        public final BiInterpreter<List<Introduction>, Expression, T, C> onFunction;
+        public final TriInterpreter<List<Introduction>, Expression, Catamorphism<T, C>, T, C> onFunction;
         public final Interpreter<String, T, C> onNumberLiteral;
 
         public Catamorphism(
@@ -242,7 +242,7 @@ public abstract class Expression {
             Interpreter<String, T, C> onVariable,
             Interpreter<Map<Introduction, T>, T, C> onObjectLiteral,
             BiInterpreter<T, String, T, C> onAccess,
-            BiInterpreter<List<Introduction>, Expression, T, C> onFunction,
+            TriInterpreter<List<Introduction>, Expression, Catamorphism<T, C>, T, C> onFunction,
             TriInterpreter<T, List<T>, Catamorphism<T, C>, T, C> onCall,
             Interpreter<List<T>, T, C> onSequence
         ) {

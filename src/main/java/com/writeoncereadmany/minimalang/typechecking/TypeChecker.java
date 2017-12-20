@@ -107,8 +107,13 @@ public interface TypeChecker {
         );
     }
 
-    static Expression.BiInterpreter<List<Introduction>, Expression, Result<Type, List<TypeError>>, Types> functionExpression() {
-        return usingContext((params, body, types) -> {
+    static Expression.TriInterpreter
+        <List<Introduction>,
+        Expression,
+        Catamorphism<Result<Type, List<TypeError>>, Types>,
+        Result<Type, List<TypeError>>, Types>
+    functionExpression() {
+        return usingContext((params, body, cata, types) -> {
             Pair<List<Pair<Introduction, Type>>, List<List<TypeError>>> paramTypes = params
                 .stream()
                 .map(onlyType(types))
