@@ -28,4 +28,16 @@ public class TypeDefinitionTest {
     public void canParseFunctionType() {
         Program program = compiler.compile("type BinaryNumberOperation is [Number, Number] => Number");
     }
+
+    @Test
+    public void canParseInterfaceType() {
+        Program program = compiler.compile("type Point is { x : Number, y : Number}");
+    }
+
+    @Test
+    public void canParseNestedTypeDefinitions() {
+        Program program = compiler.compile("type Monoid is { id : Number, append : [Number, Number] => Number }");
+
+        System.out.println(program);
+    }
 }

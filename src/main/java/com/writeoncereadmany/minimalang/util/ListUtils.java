@@ -33,4 +33,12 @@ public interface ListUtils {
             }
         };
     }
+
+    static <T> List<T> allButLast(List<T> list) {
+        return list.subList(0, list.size() - 1);
+    }
+
+    static <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
+    }
 }

@@ -60,6 +60,10 @@ public abstract class Expression {
         return new Sequence(expressions);
     }
 
+    public static Expression typeDeclaration(String name, TypeDefinition type) {
+        return new TypeDeclaration(name, type);
+    }
+
     public abstract <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context);
 
     public <T> T then(Function<Expression, T> function) {

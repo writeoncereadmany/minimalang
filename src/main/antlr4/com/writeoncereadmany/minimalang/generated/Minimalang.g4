@@ -32,6 +32,7 @@ expression
 introduction : (ANNOTATION)* IDENTIFIER;
 
 type
-  : IDENTIFIER                              # type_alias
-  | '[' (type (',' type)*)? ']' '=>' type   # function_type
+  : IDENTIFIER                                                # named_type
+  | '[' (type (',' type)*)? ']' '=>' type                     # function_type
+  | '{' (IDENTIFIER ':' type (',' IDENTIFIER ':' type)*)? '}' # interface_type
   ;
