@@ -5,6 +5,9 @@ import co.unruly.control.pair.Pair;
 import co.unruly.control.pair.Pairs;
 import co.unruly.control.result.Result;
 import co.unruly.control.result.TypeOf;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.BiInterpreter;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.Interpreter;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.TriInterpreter;
 import com.writeoncereadmany.minimalang.ast.Expression;
 import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.ast.Introduction;
@@ -27,8 +30,8 @@ import static co.unruly.control.result.Result.failure;
 import static co.unruly.control.result.Result.success;
 import static co.unruly.control.result.Transformers.*;
 import static co.unruly.control.result.TypeOf.using;
-import static com.writeoncereadmany.minimalang.ast.Expression.contextFree;
-import static com.writeoncereadmany.minimalang.ast.Expression.usingContext;
+import static com.writeoncereadmany.minimalang.ast.CataFunctions.contextFree;
+import static com.writeoncereadmany.minimalang.ast.CataFunctions.usingContext;
 import static com.writeoncereadmany.minimalang.util.ListUtils.flatten;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -56,19 +59,15 @@ public interface TypeChecker {
         );
     }
 
-    static Expression.BiInterpreter<String, TypeDefinition, Result<Type, List<TypeError>>, Types> typeDefinition() {
-        return null;
-    }
-
-    static Expression.Interpreter<String, Result<Type, List<TypeError>>, Types> stringLiteral(NamedType stringType) {
+    static Interpreter<String, Result<Type, List<TypeError>>, Types> stringLiteral(NamedType stringType) {
         return contextFree(stringLiteral -> success(stringType));
     }
 
-    static Expression.Interpreter<String, Result<Type, List<TypeError>>, Types> numberLiteral(NamedType numberType) {
+    static Interpreter<String, Result<Type, List<TypeError>>, Types> numberLiteral(NamedType numberType) {
         return contextFree(stringLiteral -> success(numberType));
     }
 
-    static Expression.BiInterpreter<Introduction, Result<Type, List<TypeError>>, Result<Type, List<TypeError>>, Types> variableDeclaration(NamedType successType) {
+    static BiInterpreter<Introduction, Result<Type, List<TypeError>>, Result<Type, List<TypeError>>, Types> variableDeclaration(NamedType successType) {
         return (variable, type, context) -> type.either(
             s -> startWith(s)
                 .then(checkAgainstAnnotations(variable, context))
@@ -79,11 +78,11 @@ public interface TypeChecker {
         );
     }
 
-    static Expression.Interpreter<String, Result<Type, List<TypeError>>, Types> variable() {
+    static Interpreter<String, Result<Type, List<TypeError>>, Types> variable() {
         return usingContext((variable, context) -> context.typeOf(variable));
     }
 
-    static Expression.Interpreter<Map<Introduction, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
+    static Interpreter<Map<Introduction, Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> objectLiteral() {
         return usingContext((fields, types) -> anyFailures(fields
             .entrySet()
             .stream()
@@ -105,7 +104,7 @@ public interface TypeChecker {
             .collect(toList()))));
     }
 
-    static Expression.BiInterpreter<Result<Type, List<TypeError>>, String, Result<Type, List<TypeError>>, Types> access() {
+    static BiInterpreter<Result<Type, List<TypeError>>, String, Result<Type, List<TypeError>>, Types> access() {
         return usingContext((type, field, context) -> type
             .then(attempt(context::resolve))
             .then(attempt(t -> matchValue(t,
@@ -114,11 +113,10 @@ public interface TypeChecker {
         );
     }
 
-    static Expression.TriInterpreter
-        <List<Introduction>,
-        Expression,
-        Catamorphism<Result<Type, List<TypeError>>, Types>,
-        Result<Type, List<TypeError>>, Types>
+    static TriInterpreter<List<Introduction>,
+            Expression,
+            Catamorphism<Result<Type, List<TypeError>>, Types>,
+            Result<Type, List<TypeError>>, Types>
     functionExpression() {
         return usingContext((params, body, cata, types) -> {
             Pair<List<Pair<Introduction, Type>>, List<List<TypeError>>> paramTypes = params
@@ -146,7 +144,7 @@ public interface TypeChecker {
         });
     }
 
-    static Expression.TriInterpreter<Result<Type, List<TypeError>>, List<Result<Type, List<TypeError>>>, Catamorphism<Result<Type, List<TypeError>>, Types>, Result<Type, List<TypeError>>, Types> functionCall() {
+    static TriInterpreter<Result<Type, List<TypeError>>, List<Result<Type, List<TypeError>>>, Catamorphism<Result<Type, List<TypeError>>, Types>, Result<Type, List<TypeError>>, Types> functionCall() {
         return usingContext((function, args, cata, types) -> successesOrFailures(args)
             .either(
                 arguments -> function.then(attempt(t ->
@@ -157,12 +155,16 @@ public interface TypeChecker {
         );
     }
 
-    static Expression.Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
+    static Interpreter<List<Result<Type, List<TypeError>>>, Result<Type, List<TypeError>>, Types> group() {
         return contextFree(expressions -> expressions
             .stream()
             .collect(allSucceeded())
             .then(onFailure(ListUtils::flatten))
             .then(onSuccess(types -> types.get(types.size() - 1))));
+    }
+
+    static BiInterpreter<String, TypeDefinition, Result<Type, List<TypeError>>, Types> typeDefinition() {
+        return null;
     }
 
     static <K, S, F> Result<Pair<K, S>, Pair<K, F>> liftResults(Map.Entry<K, Result<S, F>> entry) {

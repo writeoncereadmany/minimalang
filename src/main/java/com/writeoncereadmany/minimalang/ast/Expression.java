@@ -1,13 +1,14 @@
 package com.writeoncereadmany.minimalang.ast;
 
-import co.unruly.control.PartialApplication;
 import co.unruly.control.pair.Maps;
 import co.unruly.control.pair.Pair;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.BiInterpreter;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.Interpreter;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.TriInterpreter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static co.unruly.control.pair.Pairs.onRight;
@@ -280,59 +281,4 @@ public abstract class Expression {
         }
     }
 
-    /*************************************
-     *
-     * Catamorphism functional interfaces
-     *
-     *************************************/
-
-    @FunctionalInterface
-    public interface Interpreter<X, T, C> {
-        Pair<T, C> apply(X x, C context);
-    }
-
-    @FunctionalInterface
-    public interface BiInterpreter<X, Y, T, C>  {
-        Pair<T, C> apply(X x, Y y, C context);
-    }
-
-    @FunctionalInterface
-    public interface TriInterpreter<X, Y, Z, T, C>  {
-        Pair<T, C> apply(X x, Y y, Z z, C context);
-    }
-
-    @FunctionalInterface
-    public interface QuadFunction<A, B, C, D, R> {
-        R apply(A a, B b, C c, D d);
-    }
-
-    /*************************************
-     *
-     * Catamorphism context-free helpers
-     *
-     *************************************/
-
-    public static <E, T, C> Expression.Interpreter<E, T, C> contextFree(Function<E, T> contextFreeFunction) {
-        return (e, c) -> Pair.of(contextFreeFunction.apply(e), c);
-    }
-
-    public static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> contextFree(BiFunction<A, B, T> contextFreeFunction) {
-        return (a, b, c) -> Pair.of(contextFreeFunction.apply(a, b), c);
-    }
-
-    public static <X, Y, Z, T, C> Expression.TriInterpreter<X, Y, Z, T, C> contextFree(PartialApplication.TriFunction<X, Y, Z, T> contextFreeFunction) {
-        return (x, y, z, c) -> Pair.of(contextFreeFunction.apply(x,y,z), c);
-    }
-
-    public static <E, T, C> Expression.Interpreter<E, T, C> usingContext(BiFunction<E, C, T> contextUsingFunction) {
-        return (e, c) -> Pair.of(contextUsingFunction.apply(e, c), c);
-    }
-
-    public static <A, B, T, C> Expression.BiInterpreter<A, B, T, C> usingContext(PartialApplication.TriFunction<A, B, C, T> contextUsingFunction) {
-        return (a, b, c) -> Pair.of(contextUsingFunction.apply(a, b, c), c);
-    }
-
-    public static <X, Y, Z, C, T> Expression.TriInterpreter<X, Y, Z, T, C> usingContext(QuadFunction<X, Y, Z, C, T> contextUsingFunction) {
-        return (x, y, z, c) -> Pair.of(contextUsingFunction.apply(x, y, z, c), c);
-    }
 }

@@ -1,6 +1,8 @@
 package com.writeoncereadmany.minimalang.ast;
 
 import co.unruly.control.pair.Pair;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.BiInterpreter;
+import com.writeoncereadmany.minimalang.ast.CataFunctions.Interpreter;
 
 import java.util.List;
 import java.util.Map;
@@ -65,15 +67,15 @@ public abstract class TypeDefinition {
     }
 
     public static class Catamorphism<T, C> {
-        public final Expression.BiInterpreter<List<T>, T, T, C> onFunctionTypeDefinition;
-        public final Expression.Interpreter<Map<String, T>, T, C> onInterfaceTypeDefinition;
-        public final Expression.Interpreter<String, T, C> onNamedTypeDefinition;
+        public final BiInterpreter<List<T>, T, T, C> onFunctionTypeDefinition;
+        public final Interpreter<Map<String, T>, T, C> onInterfaceTypeDefinition;
+        public final Interpreter<String, T, C> onNamedTypeDefinition;
 
 
         public Catamorphism(
-            Expression.BiInterpreter<List<T>, T, T, C> onFunctionTypeDefinition,
-            Expression.Interpreter<Map<String, T>, T, C> onInterfaceTypeDefinition,
-            Expression.Interpreter<String, T, C> onNamedTypeDefinition
+            BiInterpreter<List<T>, T, T, C> onFunctionTypeDefinition,
+            Interpreter<Map<String, T>, T, C> onInterfaceTypeDefinition,
+            Interpreter<String, T, C> onNamedTypeDefinition
         ) {
             this.onFunctionTypeDefinition = onFunctionTypeDefinition;
             this.onInterfaceTypeDefinition = onInterfaceTypeDefinition;

@@ -1,15 +1,15 @@
 package com.writeoncereadmany.minimalang.runtime;
 
 import co.unruly.control.pair.Pair;
-import co.unruly.control.result.Resolvers;
 import com.writeoncereadmany.minimalang.ast.Expression.Catamorphism;
 import com.writeoncereadmany.minimalang.runtime.values.*;
 
 import static co.unruly.control.ApplicableWrapper.startWith;
 import static co.unruly.control.result.Introducers.castTo;
+import static co.unruly.control.result.Resolvers.getOrThrow;
 import static co.unruly.control.result.Transformers.onSuccess;
-import static com.writeoncereadmany.minimalang.ast.Expression.contextFree;
-import static com.writeoncereadmany.minimalang.ast.Expression.usingContext;
+import static com.writeoncereadmany.minimalang.ast.CataFunctions.contextFree;
+import static com.writeoncereadmany.minimalang.ast.CataFunctions.usingContext;
 import static com.writeoncereadmany.minimalang.runtime.values.prelude.SuccessValue.SUCCESS;
 import static com.writeoncereadmany.minimalang.util.MapUtils.mapKeys;
 import static java.util.stream.Collectors.toList;
@@ -30,7 +30,7 @@ public interface Evaluator {
             contextFree((object, field) -> startWith(object)
                 .then(castTo(InterfaceValue.class))
                 .then(onSuccess(obj -> obj.field(field)))
-                .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only access fields of objects: got a " + obj.getClass())))),
+                .then(getOrThrow(obj -> new EvaluationException("Can only access fields of objects: got a " + obj.getClass())))),
             usingContext((parameters, body, cata, context) -> new Closure(
                 parameters.stream().map(i -> i.name).collect(toList()),
                 body,
@@ -39,7 +39,7 @@ public interface Evaluator {
                 .then(castTo(FunctionValue.class))
                 .then(onSuccess(f -> f.invoke(arguments, cata)))
                 .then(onSuccess(result -> Pair.of(result, context)))
-                .then(Resolvers.getOrThrow(obj -> new EvaluationException("Can only execute functions: got a " + obj.getClass()))),
+                .then(getOrThrow(obj -> new EvaluationException("Can only execute functions: got a " + obj.getClass()))),
             contextFree(expressions -> expressions.get(expressions.size() - 1)),
             contextFree((__, ___) -> SUCCESS)
         );
