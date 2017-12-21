@@ -83,20 +83,18 @@ public class TypeDefinitionTest {
     }
 
     @Test
-    public void canParseFunctionType() {
-        Program program = compiler.compile("type BinaryNumberOperation is [Number, Number] => Number");
-    }
+    public void shouldHandleFunctionAndInterfaceTypeDeclarationsWhereEverythingMatches() {
+        Program program = compiler.compile(String.join("\n",
+                "type BinaryNumberOperation is [Number, Number] => Number, ",
+                "type Monoid is { id : Number, append : BinaryNumberOperation }, ",
+                "@Monoid addition is { id: 0, append: [@Number x, @Number y] => x:plus[y] }, ",
+                "@Number sum is addition:append[2, 4],",
+                "sum"
+        ));
 
-    @Test
-    public void canParseInterfaceType() {
-        Program program = compiler.compile("type Point is { x : Number, y : Number}");
-    }
+        Result<Type, List<TypeError>> result = program.run(typeChecker, types).left;
 
-    @Test
-    public void canParseNestedTypeDefinitions() {
-        Program program = compiler.compile("type Monoid is { id : Number, append : [Number, Number] => Number }");
-
-        System.out.println(program);
+        assertThat(result, isSuccessOf(number));
     }
 
     public List<TypeError> singleError(String reason) {

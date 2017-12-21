@@ -24,7 +24,7 @@
         <dependency>
             <groupId>co.unruly</groupId>
             <artifactId>control</artifactId>
-            <version>0.8.10-SNAPSHOT</version>
+            <version>0.8.10</version>
         </dependency>
 
         <!-- Test dependencies -->
