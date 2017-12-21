@@ -32,6 +32,7 @@ import static co.unruly.control.result.Transformers.*;
 import static co.unruly.control.result.TypeOf.using;
 import static com.writeoncereadmany.minimalang.ast.CataFunctions.contextFree;
 import static com.writeoncereadmany.minimalang.ast.CataFunctions.usingContext;
+import static com.writeoncereadmany.minimalang.typechecking.TypeDefiner.typeDefiner;
 import static com.writeoncereadmany.minimalang.util.ListUtils.flatten;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -55,7 +56,7 @@ public interface TypeChecker {
             functionExpression(),
             functionCall(),
             group(),
-            typeDefinition()
+            typeDefinition(successType, typeDefiner())
         );
     }
 
@@ -163,8 +164,10 @@ public interface TypeChecker {
             .then(onSuccess(types -> types.get(types.size() - 1))));
     }
 
-    static BiInterpreter<String, TypeDefinition, Result<Type, List<TypeError>>, Types> typeDefinition() {
-        return null;
+    static BiInterpreter<String, TypeDefinition, Result<Type, List<TypeError>>, Types> typeDefinition(NamedType successType, TypeDefinition.Catamorphism<Type, Types> typeDefiner) {
+        return (name, definition, types) -> Pair.of(
+            success(successType),
+            types.withNamedType(name, definition.fold(typeDefiner, types).left));
     }
 
     static <K, S, F> Result<Pair<K, S>, Pair<K, F>> liftResults(Map.Entry<K, Result<S, F>> entry) {

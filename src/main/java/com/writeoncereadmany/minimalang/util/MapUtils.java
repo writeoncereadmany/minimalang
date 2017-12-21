@@ -28,4 +28,16 @@ public interface MapUtils {
     static <OK, NK, V> Map<NK, V> mapKeys(Function<OK, NK> f, Map<OK, V> m) {
         return startWith(m).then(mapKeys(f));
     }
+
+    static <K, OV, NV> Function<Map<K, OV>, Map<K, NV>> mapValues(Function<OV, NV> f) {
+        return map -> map
+            .entrySet()
+            .stream()
+            .map(entry -> Pair.of(entry.getKey(), f.apply(entry.getValue())))
+            .collect(Maps.toMap());
+    }
+
+    static <K, OV, NV> Map<K, NV> mapValues(Function<OV, NV> f, Map<K, OV> m) {
+        return startWith(m).then(mapValues(f));
+    }
 }

@@ -7,6 +7,10 @@ import com.writeoncereadmany.minimalang.ast.CataFunctions.Interpreter;
 import java.util.List;
 import java.util.Map;
 
+import static co.unruly.control.ApplicableWrapper.startWith;
+import static com.writeoncereadmany.minimalang.util.MapUtils.mapValues;
+import static java.util.stream.Collectors.toList;
+
 public abstract class TypeDefinition {
 
     private TypeDefinition() {}
@@ -36,7 +40,13 @@ public abstract class TypeDefinition {
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return null;
+            return cata.onFunctionTypeDefinition.apply(
+                paramTypes
+                    .stream()
+                    .map(def -> def.fold(cata, context).left)
+                    .collect(toList()),
+                returnType.fold(cata, context).left,
+                context);
         }
     }
 
@@ -49,7 +59,8 @@ public abstract class TypeDefinition {
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return null;
+            Map<String, T> fields = startWith(fieldTypes).then(mapValues(def -> def.fold(cata, context).left));
+            return cata.onInterfaceTypeDefinition.apply(fields, context);
         }
     }
 
@@ -62,7 +73,7 @@ public abstract class TypeDefinition {
 
         @Override
         public <T, C> Pair<T, C> fold(Catamorphism<T, C> cata, C context) {
-            return null;
+            return cata.onNamedTypeDefinition.apply(name, context);
         }
     }
 
