@@ -20,11 +20,11 @@ import static java.util.stream.Collectors.toList;
 public interface ProgramBuilder {
 
     static Program build(MinimalangParser.ProgramContext program) {
-        return new Program(program
+        return new Program(sequence(program
             .expression()
             .stream()
             .map(ProgramBuilder::buildExpression)
-            .collect(toList()));
+            .collect(toList())));
     }
 
     static Expression buildExpression(MinimalangParser.ExpressionContext expression) {
