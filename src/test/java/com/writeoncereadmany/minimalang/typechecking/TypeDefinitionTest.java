@@ -1,13 +1,11 @@
 package com.writeoncereadmany.minimalang.typechecking;
 
+import co.unruly.control.pair.Pair;
 import co.unruly.control.result.Result;
 import com.writeoncereadmany.minimalang.MinimaCompiler;
 import com.writeoncereadmany.minimalang.ast.Expression;
 import com.writeoncereadmany.minimalang.ast.Program;
-import com.writeoncereadmany.minimalang.typechecking.types.ConcreteFunctionType;
-import com.writeoncereadmany.minimalang.typechecking.types.DataType;
 import com.writeoncereadmany.minimalang.typechecking.types.NamedType;
-import com.writeoncereadmany.minimalang.typechecking.types.ObjectType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,50 +13,23 @@ import java.util.stream.Stream;
 
 import static co.unruly.control.matchers.ResultMatchers.isFailureOf;
 import static co.unruly.control.matchers.ResultMatchers.isSuccessOf;
-import static co.unruly.control.pair.Maps.entry;
-import static co.unruly.control.pair.Maps.mapOf;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertThat;
 
 public class TypeDefinitionTest {
 
-    public MinimaCompiler compiler = new MinimaCompiler();
     private final NamedType number = new NamedType("Number");
     private final NamedType string = new NamedType("String");
     private final NamedType successType = new NamedType("Success");
-    private final NamedType showable = new NamedType("Showable");
 
-    private final Type numberImpl = new DataType("Number", mapOf(
-        entry("plus", new ConcreteFunctionType(asList(number), number)),
-        entry("show", new ConcreteFunctionType(emptyList(), string))
-    ));
+    public MinimaCompiler compiler = new MinimaCompiler();
 
-    private final Type stringImpl = new DataType("String", mapOf(
-        entry("concat", new ConcreteFunctionType(asList(string), string)),
-        entry("show", new ConcreteFunctionType(emptyList(), string))
-    ));
+    private final Pair<Types, Expression.Catamorphism<Result<Type, List<TypeError>>, Types>> typeSystem = Typesets.justBuiltins();
 
-    private final Type successImpl = new DataType("Success", emptyMap());
-
-    private final Type showableImpl = new ObjectType(mapOf(entry("show", new ConcreteFunctionType(emptyList(), string))));
-    private final Type printType = new ConcreteFunctionType(asList(showable), successType);
-
-    private final Expression.Catamorphism<Result<Type, List<TypeError>>, Types> typeChecker = TypeChecker.typeChecker(
-        number,
-        string,
-        successType);
-
-    private final Types types = new Types()
-        .withVariable("print", printType)
-        .withVariable("Success", successImpl)
-        .withNamedType("Number", numberImpl)
-        .withNamedType("String", stringImpl)
-        .withNamedType("Success", successImpl)
-        .withNamedType("Showable", showableImpl);
+    private final Types types = typeSystem.left;
+    private final Expression.Catamorphism<Result<Type, List<TypeError>>, Types> typeChecker = typeSystem.right;
 
     @Test
     public void typeChecksWhenAliasedTypesMatch() {
